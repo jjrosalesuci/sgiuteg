@@ -45,7 +45,7 @@ $config = [
                         'class'      => 'Swift_SmtpTransport',
                         'host'       => 'smtp.gmail.com',
                         'username'   => 'sgg.2020@gmail.com',
-                        'password'   => 'salvigun 1234',
+                        'password'   => '-',
                         'port'       => '587',
                         'encryption' => 'tls',
             ],
