@@ -72,7 +72,7 @@ Ext.onReady(function () {
             if(Ext.m_encuestas_r.sm.getSelected())
             {
               Ext.m_encuestas_r.stnotas_preguntas.load({params: {start: 0,limit: 100}});     
-              Ext.m_encuestas_r.store.load({params: {start: 0,limit: 100}});     
+              //Ext.m_encuestas_r.store.load({params: {start: 0,limit: 100}});
             }
         });
 
@@ -103,6 +103,7 @@ Ext.onReady(function () {
                 {name: 'Bien'}, 
                 {name: 'Regular'}, 
                 {name: 'Deficiente'},
+                {name: 'promedio_nota'},
                 {name: 'nota'}
             ])
         });
@@ -139,7 +140,7 @@ Ext.onReady(function () {
         /*GRAFICO*/
 
                      //store respuestas
-                Ext.m_encuestas_r.store = new Ext.data.Store({
+             /*   Ext.m_encuestas_r.store = new Ext.data.Store({
                     url: '../resultados/cargarrespuestas',
                     listeners: {'beforeload': function (store, objeto) {
                          store.baseParams.id_trabajador         = id_trabajador;
@@ -153,35 +154,51 @@ Ext.onReady(function () {
                         fields:['indice', 'cantidad'],
                     })
                 });
-
+*/
                     //panel estadisticas
                    Ext.m_encuestas_r.panel = new Ext.Panel({
                         width:'100%',
                         height:195,
                         items: {
                             xtype: 'linechart',
-                            store: Ext.m_encuestas_r.store,
+                            store: Ext.m_encuestas_r.stnotas_preguntas,
                             url: '../../../resources/charts.swf',
-                            xField: 'indice',
-                            xLabel: 'Month',
-                            yField: 'cantidad',
+                            xField: 'id_pregunta',
+                            xLabel: 'Preguntas',
+                         
                             /*yAxis: new Ext.chart.NumericAxis({
                                 displayName: 'Cantidad',
                                 labelRenderer : Ext.util.Format.numberRenderer('0,0')
                             }),*/
-                            tipRenderer : function(chart, record){
-                                return Ext.util.Format.number(record.data.cantidad, '0,0') + ' respuesta(s) (Excelente,Muy bien,Bien) en la pregunta: ' + record.data.indice;
-                            },
+                            /*  tipRenderer : function(chart, record){
+                                return Ext.util.Format.number(record.data.nota, '0,0') + ' respuesta(s) (Excelente,Muy bien,Bien) en la pregunta: ' + record.data.indice;
+                            },*/
                             series: [{
                                 type:'line',
-                                displayName: 'Pregunta',
+                                yField: 'nota',
+                                displayName: 'Nota evaluado',
                                 //yField: 'respuesta',
                                 style: {
                                     color: 0x69aBc8,
                                 }
-                            }]
+                              },
+                             {
+                               type:'line',
+                               displayName: 'Nota promedio',
+                               yField: 'promedio_nota',
+                               style: {
+                                     color: 0x15428B
+                               }
+                              }
+                            ],
+                            extraStyle:{            //Step 1
+                                legend:{        //Step 2
+                                    display: 'left'//Step 3
+                                }
+                            }
                         }
                     });
+
                    //panel estadisticas
                    Ext.m_encuestas_r.panel2 = new Ext.Panel({
                         width:'100%',
@@ -191,7 +208,7 @@ Ext.onReady(function () {
                             store: Ext.m_encuestas_r.store,
                             url: '../../../resources/charts.swf',
                             dataField: 'cantidad',
-                            categoryField: 'indice',
+                            categoryField: 'id_pregunta',
                             //extra styles get applied to the chart defaults
                             extraStyle:
                             {
@@ -272,20 +289,7 @@ Ext.onReady(function () {
                             anchor:'95%',
                             value: '..Cargando..'
                         }]
-                    },
-                    {
-                        columnWidth:.1,
-                        layout: 'form',                        
-                        items: [new Ext.Button({
-                             icon: '../../../images/save.png',
-                             text:'DESCARGAR',
-                             handler:function(){
-                                var oIFrm = document.getElementById('myIFrm');
-                                oIFrm.src = "../resultados/exportarpdfdocente";
-                             }
-                         })                          
-                        ]
-                    }                    
+                    }                                      
                   ]
                 }]           
             },
@@ -311,8 +315,32 @@ Ext.onReady(function () {
                     columnWidth:.50, 
                     baseCls:'x-plain',
                     bodyStyle:'padding:5px 0 5px 5px',
-                    items:[                     
-                         Ext.m_encuestas_r.panel2
+                    frame:true,
+                    items:[ 
+                      {
+                        columnWidth:.1,
+                        layout: 'form',
+                        title:'Acciones comunesu',
+                        frame:true,                    
+                        buttons: [
+                         new Ext.Button({
+                             icon: '../../../images/save.png',
+                             text:'Descargar resumen',
+                             handler:function(){
+                                var oIFrm = document.getElementById('myIFrm');
+                                oIFrm.src = "../resultados/exportarpdfdocente";
+                             }
+                         }),
+                         new Ext.Button({
+                             icon: '../../../images/save.png',
+                             text:'Volver al listado',
+                             handler:function(){
+                              window.history.back();
+                             }
+                         })
+                        ]
+                      }                   
+                       //
                     ]
                 }]
 

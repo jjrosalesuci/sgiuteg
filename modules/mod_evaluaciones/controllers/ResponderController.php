@@ -14,7 +14,9 @@ use app\modules\mod_nomencladores\models\datAsignatura;
 use app\modules\mod_nomencladores\models\datDocentes;
 use app\models\User;
 use app\modules\mod_evaluaciones\models\datDatosEvaluado;
+use app\modules\mod_evaluaciones\models\DaNotasp;
 use app\modules\mod_nomencladores\models\datMateriasCarreras;
+
 
 
 class ResponderController extends \yii\web\Controller
@@ -68,6 +70,8 @@ class ResponderController extends \yii\web\Controller
         $model_datos_evaluado->save();
         /*Registrar los resultados*/
 
+     
+
         $data = $_POST;
         unset($data['id_evaluacion']);
         unset($data['materia']);
@@ -90,6 +94,9 @@ class ResponderController extends \yii\web\Controller
         $log->id_evaluacion  =  $id_evaluacion;
         $log->id_usuario     =  $user_id;
         $log->save();
+
+
+           $this->recalcular($id_materia,$id_evaluacion,$id_docente);
 
         if($opcion_redireccion==2){
           return $this->redirect('completar?id='.$id_evaluacion);
@@ -561,5 +568,156 @@ class ResponderController extends \yii\web\Controller
         }
         return $arreglo; 
     }
-  
+
+
+    /*
+    * Metodo que actualiza la nota de un profe por respuestas para las estadisticas de promedio
+    */
+    
+
+    public function recalcular($id_asignatura,$id_evaluacion,$id_trabajador){
+
+      $respuestas               = $this->BuscarRespuestasDocenteEvaluacion($id_trabajador,$id_evaluacion,$id_asignatura);
+      $notas_por_preguntas      = $this->NotasDadaRespuesta($respuestas);
+      
+
+      $connection = \Yii::$app->db;
+        
+      $resultado = $connection->createCommand()->delete('m_evaluaciones.dat_trabajador_dat_evaluacion_dat_pregunta_nota',  [
+           'dat_evaluacion' => $id_evaluacion,
+           'dat_trabajador' => $id_trabajador,
+           'dat_asignatura' => $id_asignatura
+      ])->execute();
+
+      foreach ($notas_por_preguntas as $key => $value) {
+          $model = new DaNotasp();
+          $model->dat_evaluacion  = $id_evaluacion;
+          $model->dat_trabajador  = $id_trabajador;
+          $model->dat_pregunta    = $key;
+          $model->dat_asignatura  = $id_asignatura;
+          $model->dat_nota        = $value;
+          $model->save(false);
+      }
+    }
+
+
+     public function BuscarRespuestasDocenteEvaluacion($id_docente,$id_evaluacion,$id_asignatura){
+      $sql = "
+        SELECT 
+          dat_evaluacion_respuestas.id_datos_evaluado, 
+          dat_datos_evaluado.id_evaluacion, 
+          dat_datos_evaluado.id_usuario, 
+          dat_datos_evaluado.id_carrera, 
+          dat_datos_evaluado.nombre_carrera, 
+          dat_datos_evaluado.id_asignatura, 
+          dat_datos_evaluado.nombre_asignatura, 
+          dat_datos_evaluado.id_trabajador, 
+          dat_datos_evaluado.nombre_trabajador, 
+          dat_evaluacion_respuestas.id_pregunta, 
+          dat_evaluacion_respuestas.id_usuario, 
+          dat_evaluacion_respuestas.respuesta, 
+          dat_evaluacion_respuestas.id_evaluacion, 
+          dat_evaluacion_respuestas.id,
+          m_arquitectura.dat_usuarios.role,
+          dat_pregunta.tipo
+        FROM
+          m_evaluaciones.dat_pregunta
+        INNER JOIN m_evaluaciones.dat_evaluacion_respuestas 
+         ON(dat_evaluacion_respuestas.id_pregunta = dat_pregunta.id_pregunta)
+        INNER JOIN m_evaluaciones.dat_datos_evaluado
+         ON(dat_evaluacion_respuestas.id_datos_evaluado = dat_datos_evaluado.id)
+        INNER JOIN m_arquitectura.dat_usuarios
+         ON( m_evaluaciones.dat_datos_evaluado.id_usuario = m_arquitectura.dat_usuarios.id)  
+        WHERE 
+          dat_datos_evaluado.id_trabajador=".$id_docente." 
+        AND
+          dat_datos_evaluado.id_evaluacion=".$id_evaluacion."
+        AND
+          dat_datos_evaluado.id_asignatura = ".$id_asignatura."
+        AND
+          dat_pregunta.tipo = '3'
+      ";
+
+      /*Filtrar solamente las que son de opciones*/
+
+
+      $primaryConnection = \Yii::$app->db;
+      $command           = $primaryConnection->createCommand($sql);
+      $respuestas        = $command->queryAll();
+
+
+      //var_dump($respuestas);die;
+
+      $arreglo_resumen   = array();
+      foreach ($respuestas as $key => $value) {
+        if($value["respuesta"]!=""){
+          if(isset($arreglo_resumen[$value['id_pregunta']][ $value["respuesta"]])){
+            $arreglo_resumen[$value['id_pregunta']][$value["respuesta"]]++;
+          }else{
+            $arreglo_resumen[$value['id_pregunta']][$value["respuesta"]]=1;
+          }
+        }
+      }
+      return $arreglo_resumen;
+    }
+
+    /*
+    * 
+    * Método que devuelve na nota dada las respuestas de una evaluacion utilizando las formulas con la tabla 
+    * de equivalencia
+    *
+    * 5- Excelente; 4- Muy bien; 3- Bien; 2- Regular; 1- Deficiente
+    *
+    */
+
+    public function NotasDadaRespuesta($preguntas_respuestas)
+    {
+       $nota_pregunta = array();
+       foreach ($preguntas_respuestas as $key => $value) {
+          $total                = 0;
+          $acumulado_ponderado  = 0;
+          foreach ($value as $key_respues => $cantidad) {
+              $total=$total+$cantidad;
+              switch ($key_respues) {
+                  case 'Excelente':
+                       $acumulado_ponderado = $acumulado_ponderado + ($cantidad*5);
+                  break;
+                   case 'Muy bien':
+                       $acumulado_ponderado = $acumulado_ponderado + ($cantidad*4);
+                  break;
+                   case 'Bien':
+                       $acumulado_ponderado = $acumulado_ponderado + ($cantidad*3);
+                  break;
+                   case 'Regular':
+                       $acumulado_ponderado = $acumulado_ponderado + ($cantidad*2);
+                  break;
+                   case 'Deficiente':
+                        $acumulado_ponderado = $acumulado_ponderado + ($cantidad*1);
+                  break;
+              }
+          }
+          $nota_pregunta[$key] = $acumulado_ponderado/$total;
+      }   
+      return $nota_pregunta;     
+    }
+
+    /*
+    * Funcion para promediar las notas
+    */
+    public function Promedio($notas)
+    {
+        $cant  = count($notas);
+        $total = 0;
+        foreach ($notas as $key => $value) {
+          $total = $total + $value;
+        }
+        return $total/$cant;      
+    }
+
+
+
+
+
+
+
 }

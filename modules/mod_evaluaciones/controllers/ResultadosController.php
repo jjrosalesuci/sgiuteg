@@ -341,8 +341,9 @@ class ResultadosController extends \yii\web\Controller
          $id_evaluacion      = $request->post('id_evaluacion');
          $id_docente         = $request->post('id_trabajador');
          $id_asignatura      = $request->post('id_asignatura');
+         $notas_promedio     = $this-> BuscarNotasPromedio($id_evaluacion);
 
-        /*$id_docente               = 1085;
+        /*$id_docente               = 1085;ar
           $id_evaluacion            = 52;
           $id_asignatura            = 410;*/
 
@@ -359,13 +360,20 @@ class ResultadosController extends \yii\web\Controller
               $elemento = new \StdClass();
               $elemento->id_pregunta     = $pregunta->id_pregunta;
               $elemento->texto           = $pregunta->texto;
-
+            
               $aux_arr = array();
               foreach ($value as $key_v => $value_v) {
                   $elemento->$key_v = $value_v;
               }
 
-              $elemento->nota = '<b>'.$notas_por_preguntas[$id_pregunta].'</b>';
+              $elemento->promedio_nota=0;
+              foreach ($notas_promedio as $key_np => $value_np) {
+                  if( $elemento->id_pregunta   == $value_np['dat_pregunta']){
+                      $elemento->promedio_nota   = $value_np['promedio'];
+                  }
+              }
+
+              $elemento->nota = $notas_por_preguntas[$id_pregunta];
 
               $datos_finales[]= $elemento;                     
          }
@@ -373,7 +381,23 @@ class ResultadosController extends \yii\web\Controller
          echo json_encode(array('data'=>$datos_finales)); 
     }
 
-   
+
+
+    public function BuscarNotasPromedio($id_evaluacion){
+
+             $sql = "SELECT DISTINCT dat_trabajador_dat_evaluacion_dat_pregunta_nota.dat_pregunta,avg(dat_trabajador_dat_evaluacion_dat_pregunta_nota.dat_nota) as promedio
+                 FROM 
+                    m_evaluaciones.dat_trabajador_dat_evaluacion_dat_pregunta_nota 
+                 WHERE dat_trabajador_dat_evaluacion_dat_pregunta_nota.dat_evaluacion = ".$id_evaluacion."
+                 GROUP BY dat_pregunta
+                 ORDER BY dat_pregunta";
+
+            $primaryConnection = \Yii::$app->db;
+            $command           = $primaryConnection->createCommand($sql);
+            $notas      = $command->queryAll();
+            return $notas;
+
+    }   
 
     /*
     * 
