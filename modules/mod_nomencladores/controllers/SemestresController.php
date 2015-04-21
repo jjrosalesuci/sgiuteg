@@ -59,7 +59,7 @@ class SemestresController extends \yii\web\Controller
         $filter    = $request->get('query');
         $start    = $request->get('start');
         $limit    = $request->get('limit');
-        $date = '2014-01-01';
+        $date = '2014-09-01';
         
         $count = datSemestres::find()->where(['LIKE', 'nombre',$filter])
                                      ->andwhere(['>=','fecha_inicio', $date])

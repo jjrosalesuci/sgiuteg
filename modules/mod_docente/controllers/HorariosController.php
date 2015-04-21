@@ -5,6 +5,7 @@ namespace app\modules\mod_docente\controllers;
 use Yii;
 use app\modules\mod_docente\models\datHorario;
 use app\modules\mod_docente\models\datAulas;
+use app\modules\mod_nomencladores\models\datDocentes;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -37,7 +38,7 @@ class HorariosController extends \yii\web\Controller
             'dia' =>'MARTES',
         ); 
         $arreglo[] = array(
-            'dia' =>'MIERCOLES',
+            'dia' =>'MIÉRCOLES',
         );
         $arreglo[] = array(
             'dia' =>'JUEVES',
@@ -46,11 +47,24 @@ class HorariosController extends \yii\web\Controller
             'dia' =>'VIERNES',
         );
         $arreglo[] = array(
-            'dia' =>'SABADO',
+            'dia' =>'SÁBADO',
         );
         $arreglo[] = array(
             'dia' =>'DOMINGO',
         );
+        
+        echo json_encode(array('data' => $arreglo));
+
+    }
+    public function actionModalidad(){
+
+        $arreglo[] = array(
+            'modalidad' =>'Presencial',
+        ); 
+        $arreglo[] = array(
+            'modalidad' =>'Semipresencial',
+        ); 
+        
         
         echo json_encode(array('data' => $arreglo));
 
@@ -108,8 +122,8 @@ class HorariosController extends \yii\web\Controller
             foreach ($data as $key => $value) {
                 $value['nombre_aula'] = $this->getAula($value['id_aula'])->nombre;
                 $value['edificio'] = $this->getAula($value['id_aula'])->edificio;
-                $value['hora_inicio'] = date("h:i a", strtotime($value['hora_inicio']));
-                $value['hora_fin'] = date("h:i a", strtotime($value['hora_fin']));
+                //$value['hora_inicio'] = date("h:i a", strtotime($value['hora_inicio']));
+                //$value['hora_fin'] = date("h:i a", strtotime($value['hora_fin']));
                $arreglo[]= $value;
             }
 
@@ -133,8 +147,8 @@ class HorariosController extends \yii\web\Controller
             foreach ($data as $key => $value) {
                 $value['nombre_aula'] = $this->getAula($value['id_aula'])->nombre;
                 $value['edificio'] = $this->getAula($value['id_aula'])->edificio;
-                $value['hora_inicio'] = date("h:i a", strtotime($value['hora_inicio']));
-                $value['hora_fin'] = date("h:i a", strtotime($value['hora_fin']));
+                //$value['hora_inicio'] = date("h:i a", strtotime($value['hora_inicio']));
+                //$value['hora_fin'] = date("h:i a", strtotime($value['hora_fin']));
                $arreglo[]= $value;
             }
         
@@ -157,6 +171,7 @@ class HorariosController extends \yii\web\Controller
         $viernes	= $request->post('cb-auto-5');
         $sabado 	= $request->post('cb-auto-6');
         $domingo	= $request->post('cb-auto-7');
+        $acl_user   = $this->findAclUser($request->post('nombre_docente'));
 
         if($repetir!='on'){
 	        $model->id_materia          = $request->post('nombre_materia');
@@ -164,10 +179,12 @@ class HorariosController extends \yii\web\Controller
 	        $model->nombre_docente      = $request->post('ext-comp-1003');
 	        $model->hora_inicio         = $request->post('hora_inicio');
 	        $model->hora_fin       		= $request->post('hora_fin');
-	        $model->id_docente      	= $request->post('nombre_docente');
+            $model->id_docente          = $request->post('nombre_docente');
 	        $model->id_aula             = $request->post('nombre_aula');
 	        $model->dia_semana          = $request->post('dia');
 	        $model->id_trimestre        = $request->post('periodo');
+            $model->modalidad           = $request->post('modalidad');
+            $model->id_acl_user         = $acl_user;
 
 	        if($request->post('periodo')!=''){
 	            if ($model->save()) {
@@ -198,6 +215,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->id_aula             = $request->post('nombre_aula_lunes');
 		        $model->dia_semana          = 'LUNES';
 		        $model->id_trimestre        = $request->post('periodo');
+                $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
                     $model->save();
@@ -216,6 +234,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->id_aula             = $request->post('nombre_aula_martes');
 		        $model->dia_semana          = 'MARTES';
 		        $model->id_trimestre        = $request->post('periodo');
+                $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
                     $model->save();
@@ -232,8 +251,9 @@ class HorariosController extends \yii\web\Controller
 		        $model->hora_fin       		= $request->post('hora_fin_miercoles');
 		        $model->id_docente      	= $request->post('nombre_docente');
 		        $model->id_aula             = $request->post('nombre_aula_miercoles');
-		        $model->dia_semana          = 'MIERCOLES';
+		        $model->dia_semana          = 'MIÉRCOLES';
 		        $model->id_trimestre        = $request->post('periodo');
+                $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
                     $model->save();
@@ -252,6 +272,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->id_aula             = $request->post('nombre_aula_jueves');
 		        $model->dia_semana          = 'JUEVES';
 		        $model->id_trimestre        = $request->post('periodo');
+                $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
                     $model->save();
@@ -270,6 +291,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->id_aula             = $request->post('nombre_aula_viernes');
 		        $model->dia_semana          = 'VIERNES';
 		        $model->id_trimestre        = $request->post('periodo');
+                $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
                     $model->save();
@@ -286,8 +308,9 @@ class HorariosController extends \yii\web\Controller
 		        $model->hora_fin       		= $request->post('hora_fin_sabado');
 		        $model->id_docente      	= $request->post('nombre_docente');
 		        $model->id_aula             = $request->post('nombre_aula_sabado');
-		        $model->dia_semana          = 'SABADO';
+		        $model->dia_semana          = 'SÁBADO';
 		        $model->id_trimestre        = $request->post('periodo');
+                $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
                     $model->save();
@@ -306,6 +329,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->id_aula             = $request->post('nombre_aula_domingo');
 		        $model->dia_semana          = 'DOMINGO';
 		        $model->id_trimestre        = $request->post('periodo');
+                $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
                     $model->save();
@@ -371,6 +395,7 @@ class HorariosController extends \yii\web\Controller
         $model->nombre_docente      = $nombre_docente;
         $model->hora_inicio         = $hora_inicio;
         $model->hora_fin            = $hora_fin;
+        $model->modalidad           = $request->post('modalidad');
         
         if ($model->save()) {
             $result = new \stdClass();
@@ -400,6 +425,14 @@ class HorariosController extends \yii\web\Controller
     public function getAula($id){
         if (($model = datAulas::findOne($id)) !== null) {
             return $model;
+        } else {
+            return false;
+        }
+    }
+
+    public function findAclUser($id){
+        if (($model = datDocentes::findOne($id)) !== null) {
+            return $model->id_acl_user;
         } else {
             return false;
         }

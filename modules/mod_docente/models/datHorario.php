@@ -17,6 +17,8 @@ use Yii;
  * @property integer $id_aula
  * @property string $dia_semana
  * @property integer $id_trimestre
+ * @property integer $id_acl_user
+ * @property string $modalidad
  */
 class datHorario extends \yii\db\ActiveRecord
 {
@@ -34,8 +36,8 @@ class datHorario extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_materia', 'id_docente', 'id_aula', 'id_trimestre'], 'integer'],
-            [['nombre_materia', 'nombre_docente', 'dia_semana'], 'string'],
+            [['id_materia', 'id_docente', 'id_aula', 'id_trimestre', 'id_acl_user'], 'integer'],
+            [['nombre_materia', 'nombre_docente', 'dia_semana', 'modalidad'], 'string'],
             [['hora_inicio', 'hora_fin'], 'safe']
         ];
     }
@@ -56,6 +58,8 @@ class datHorario extends \yii\db\ActiveRecord
             'id_aula' => 'Id Aula',
             'dia_semana' => 'Dia Semana',
             'id_trimestre' => 'Id Trimestre',
+            'id_acl_user' => 'Id Acl User',
+            'modalidad' => 'Modalidad',
         ];
     }
 }

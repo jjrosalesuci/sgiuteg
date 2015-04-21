@@ -29,7 +29,8 @@ Ext.onReady(function () {
             {name: 'dia_semana'},
             {name: 'trimestre'},
             {name: 'nombre_aula'},
-            {name: 'edificio'}
+            {name: 'edificio'},
+            {name: 'modalidad'},
         ])
     });
 
@@ -154,12 +155,12 @@ Ext.onReady(function () {
             //triggerAction: 'all',
             readOnly: false,
             mode: 'remote',
-            width: 200,
+            //width: 200,
             hideTrigger:true,
             minChars:1,
             pageSize : 20,
             totalProperty : 'count',
-            anchor: '90%',       
+            anchor: '85%',       
             align: 'rigth',
             fieldLabel: 'Aula o Laboratorio',
             allowBlank: false,
@@ -202,6 +203,36 @@ Ext.onReady(function () {
         anchor: '90%',      
         align: 'rigth',
         fieldLabel: 'Dia',
+        emptyText:'Seleccione',
+    });
+
+    Ext.gest_horarios.stmodalidad = new Ext.data.Store({
+        url: 'horarios/modalidad',
+        autoLoad: true,
+        reader: new Ext.data.JsonReader({
+            root: "data",
+            id: "id"
+        }, [
+            {name: 'modalidad'}
+        ])
+    });
+
+    Ext.gest_horarios.combo_modalidad = new Ext.form.ComboBox({
+        hiddenName: 'modalidad',
+        valueField: 'modalidad',
+        displayField: 'modalidad',
+        store: Ext.gest_horarios.stmodalidad,
+        autoCreate: true,
+        typeAhead: true,
+        triggerAction: 'all',
+        readOnly: false,
+        forceSelection:true,
+        mode: 'local',
+        //width: 100,
+        anchor: '85%',  
+        allowBlank: false,    
+        align: 'rigth',
+        fieldLabel: 'Modalidad',
         emptyText:'Seleccione',
     });
 
@@ -271,7 +302,35 @@ Ext.onReady(function () {
                 items: [
                     Ext.gest_horarios.combomaterias,
                     Ext.gest_horarios.combodocentes,
-                    Ext.gest_horarios.comboaulas  
+                    {
+                        columnWidth:.7,
+                        layout: 'column',
+                        /*defaults: {
+                            // applied to each contained panel
+                            bodyStyle:'padding-right:3px'
+                        },
+                        layoutConfig: {
+                            // The total column count must be specified here
+                            columns: 2
+                        },*/
+                        items: [
+                            {
+                                columnWidth:.48,
+                                layout: 'form',
+                                items: [
+                                    Ext.gest_horarios.combo_modalidad
+                                ]
+                            },
+                            {
+                                columnWidth:.48,
+                                layout: 'form',
+                                items: [
+                                    Ext.gest_horarios.comboaulas
+                                ]
+                            }
+                            
+                            ]
+                    }  
                 ]
             },
             {
@@ -295,9 +354,10 @@ Ext.onReady(function () {
                     fieldLabel: 'Hora de Inicio',
                     allowBlank: false,
                     name: 'hora_inicio',
-                    minValue: '7:00 AM',
-                    maxValue: '10:00 PM',
-                    increment: 30,
+                    minValue: '7:00',
+                    maxValue: '22:25',
+                    format: 'H:i:s',
+                    increment: 5,
                     emptyText: 'Campo vacío!!!',
                     anchor:'85%'
                   },
@@ -307,9 +367,10 @@ Ext.onReady(function () {
                     fieldLabel: 'Hora Fin',
                     allowBlank: false,
                     name: 'hora_fin',
-                    minValue: '7:30 AM',
-                    maxValue: '10:30 PM',
-                    increment: 30,
+                    minValue: '7:30',
+                    maxValue: '22:30',
+                    format: 'H:i:s',
+                    increment: 5,
                     emptyText: 'Campo vacío!!!',
                     anchor:'85%'
                   },
@@ -434,9 +495,10 @@ Ext.onReady(function () {
                                         fieldLabel: 'Hora de Inicio',
                                         allowBlank: false,
                                         name: 'hora_inicio_lunes',
-                                        minValue: '7:00 AM',
-                                        maxValue: '10:00 PM',
-                                        increment: 30,
+                                        minValue: '7:00',
+                                        maxValue: '22:25',
+                                        format: 'H:i:s',
+                                        increment: 5,
                                         emptyText: 'Vacío!!!',
                                         disabled: true,
                                         width: 80
@@ -447,9 +509,10 @@ Ext.onReady(function () {
                                         fieldLabel: 'Hora Fin',
                                         allowBlank: false,
                                         name: 'hora_fin_lunes',
-                                        minValue: '7:30 AM',
-                                        maxValue: '10:30 PM',
-                                        increment: 30,
+                                        minValue: '7:30',
+                                        maxValue: '22:30',
+                                        format: 'H:i:s',
+                                        increment: 5,
                                         emptyText: 'Vacío!!!',
                                         disabled: true,
                                         width: 80
@@ -524,9 +587,10 @@ Ext.onReady(function () {
                                             fieldLabel: 'Hora de Inicio',
                                             allowBlank: false,
                                             name: 'hora_inicio_martes',
-                                            minValue: '7:00 AM',
-                                            maxValue: '10:00 PM',
-                                            increment: 30,
+                                            minValue: '7:00',
+                                            maxValue: '22:25',
+                                            format: 'H:i:s',
+                                            increment: 5,
                                             emptyText: 'Vacío!!!',
                                             disabled:true,
                                             width: 80
@@ -537,9 +601,10 @@ Ext.onReady(function () {
                                             fieldLabel: 'Hora Fin',
                                             allowBlank: false,
                                             name: 'hora_fin_martes',
-                                            minValue: '7:30 AM',
-                                            maxValue: '10:30 PM',
-                                            increment: 30,
+                                            minValue: '7:30',
+                                            maxValue: '22:30',
+                                            format: 'H:i:s',
+                                            increment: 5,
                                             emptyText: 'Vacío!!!',
                                             disabled:true,
                                             width: 80
@@ -613,9 +678,10 @@ Ext.onReady(function () {
                                         fieldLabel: 'Hora de Inicio',
                                         allowBlank: false,
                                         name: 'hora_inicio_miercoles',
-                                        minValue: '7:00 AM',
-                                        maxValue: '10:00 PM',
-                                        increment: 30,
+                                        minValue: '7:00',
+                                        maxValue: '22:25',
+                                        format: 'H:i:s',
+                                        increment: 5,
                                         emptyText: 'Vacío!!!',
                                         disabled:true,
                                         width: 80
@@ -626,9 +692,10 @@ Ext.onReady(function () {
                                         fieldLabel: 'Hora Fin',
                                         allowBlank: false,
                                         name: 'hora_fin_miercoles',
-                                        minValue: '7:30 AM',
-                                        maxValue: '10:30 PM',
-                                        increment: 30,
+                                        minValue: '7:30',
+                                        maxValue: '22:30',
+                                        format: 'H:i:s',
+                                        increment: 5,
                                         emptyText: 'Vacío!!!',
                                         disabled: true,
                                         width: 80
@@ -704,9 +771,10 @@ Ext.onReady(function () {
                                         fieldLabel: 'Hora de Inicio',
                                         allowBlank: false,
                                         name: 'hora_inicio_jueves',
-                                        minValue: '7:00 AM',
-                                        maxValue: '10:00 PM',
-                                        increment: 30,
+                                        minValue: '7:00',
+                                        maxValue: '22:25',
+                                        format: 'H:i:s',
+                                        increment: 5,
                                         emptyText: 'Vacío!!!',
                                         disabled:true,
                                         width: 80
@@ -717,9 +785,10 @@ Ext.onReady(function () {
                                         fieldLabel: 'Hora Fin',
                                         allowBlank: false,
                                         name: 'hora_fin_jueves',
-                                        minValue: '7:30 AM',
-                                        maxValue: '10:30 PM',
-                                        increment: 30,
+                                        minValue: '7:30',
+                                        maxValue: '22:30',
+                                        format: 'H:i:s',
+                                        increment: 5,
                                         emptyText: 'Vacío!!!',
                                         disabled: true,
                                         width: 80
@@ -795,9 +864,10 @@ Ext.onReady(function () {
                                         fieldLabel: 'Hora de Inicio',
                                         allowBlank: false,
                                         name: 'hora_inicio_viernes',
-                                        minValue: '7:00 AM',
-                                        maxValue: '10:00 PM',
-                                        increment: 30,
+                                        minValue: '7:00',
+                                        maxValue: '22:25',
+                                        format: 'H:i:s',
+                                        increment: 5,
                                         emptyText: 'Vacío!!!',
                                         disabled:true,
                                         width: 80
@@ -808,9 +878,10 @@ Ext.onReady(function () {
                                         fieldLabel: 'Hora Fin',
                                         allowBlank: false,
                                         name: 'hora_fin_viernes',
-                                        minValue: '7:30 AM',
-                                        maxValue: '10:30 PM',
-                                        increment: 30,
+                                        minValue: '7:30',
+                                        maxValue: '22:30',
+                                        format: 'H:i:s',
+                                        increment: 5,
                                         emptyText: 'Vacío!!!',
                                         disabled: true,
                                         width: 80
@@ -886,9 +957,10 @@ Ext.onReady(function () {
                                         fieldLabel: 'Hora de Inicio',
                                         allowBlank: false,
                                         name: 'hora_inicio_sabado',
-                                        minValue: '7:00 AM',
-                                        maxValue: '10:00 PM',
-                                        increment: 30,
+                                        minValue: '7:00',
+                                        maxValue: '22:25',
+                                        format: 'H:i:s',
+                                        increment: 5,
                                         emptyText: 'Vacío!!!',
                                         disabled:true,
                                         width: 80
@@ -899,9 +971,10 @@ Ext.onReady(function () {
                                         fieldLabel: 'Hora Fin',
                                         allowBlank: false,
                                         name: 'hora_fin_sabado',
-                                        minValue: '7:30 AM',
-                                        maxValue: '10:30 PM',
-                                        increment: 30,
+                                        minValue: '7:30',
+                                        maxValue: '22:30',
+                                        format: 'H:i:s',
+                                        increment: 5,
                                         emptyText: 'Vacío!!!',
                                         disabled: true,
                                         width: 80
@@ -977,9 +1050,10 @@ Ext.onReady(function () {
                                         fieldLabel: 'Hora de Inicio',
                                         allowBlank: false,
                                         name: 'hora_inicio_domingo',
-                                        minValue: '7:00 AM',
-                                        maxValue: '10:00 PM',
-                                        increment: 30,
+                                        minValue: '7:00',
+                                        maxValue: '22:25',
+                                        format: 'H:i:s',
+                                        increment: 5,
                                         emptyText: 'Vacío!!!',
                                         disabled:true,
                                         width: 80
@@ -990,9 +1064,10 @@ Ext.onReady(function () {
                                         fieldLabel: 'Hora Fin',
                                         allowBlank: false,
                                         name: 'hora_fin_domingo',
-                                        minValue: '7:30 AM',
-                                        maxValue: '10:30 PM',
-                                        increment: 30,
+                                        minValue: '7:30',
+                                        maxValue: '22:30',
+                                        format: 'H:i:s',
+                                        increment: 5,
                                         emptyText: 'Vacío!!!',
                                         disabled: true,
                                         width: 80

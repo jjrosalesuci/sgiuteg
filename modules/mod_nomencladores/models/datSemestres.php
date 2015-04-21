@@ -9,12 +9,14 @@ use Yii;
  *
  * @property integer $id
  * @property string $nombre
- * @property string $orden
- * @property string $n_parciales
+ * @property string $descripcion
+ * @property string $anio
  * @property string $fecha_inicio
  * @property string $fecha_fin
  * @property string $estatus
- * @property string $id_periodo_lectivo 
+ * @property string $fecha_cierre 
+ * @property string $id_matriz 
+ * @property string $ambito 
  */
 class datSemestres extends \yii\db\ActiveRecord
 {
@@ -23,7 +25,7 @@ class datSemestres extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'sa_grupo_parcial';
+        return 'sa_periodo_lectivo';
     }
 
     /**
@@ -32,7 +34,7 @@ class datSemestres extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['nombre','orden','n_parciales','fecha_inicio','fecha_fin','estatus','id_periodo_lectivo' ], 'string']
+            [['nombre','descripcion','anio','fecha_inicio','fecha_fin','estatus','fecha_cierre','id_matriz','ambito' ], 'string']
         ];
     }
 
@@ -44,12 +46,14 @@ class datSemestres extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'nombre' => 'Nombre',
-            'orden' => 'Orden',
-            'n_parciales' => 'N_parciales',
+            'descripcion' => 'Descripcion',
+            'anio' => 'Anio',
             'fecha_inicio' => 'Fecha inicio',
             'fecha_fin' => 'Fecha Fin',
             'estatus' => 'Estatus',
-            'id_periodo_lectivo ' => 'Id periodo lectivo',
+            'fecha_cierre' => 'Fecha Cierre',
+            'id_matriz' => 'ID Matriz',
+            'ambito' => 'Ambito',
         ];
     }
 

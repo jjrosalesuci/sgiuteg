@@ -10,6 +10,14 @@ use Yii;
  * @property integer $id
  * @property string $nombre
  * @property string $edificio
+ * @property string $parlantes
+ * @property string $infocus
+ * @property string $pc
+ * @property string $monitor
+ * @property string $teclado
+ * @property string $mouse
+ *
+ * @property DatHorario[] $datHorarios
  */
 class datAulas extends \yii\db\ActiveRecord
 {
@@ -27,7 +35,7 @@ class datAulas extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['nombre', 'edificio'], 'string']
+            [['nombre', 'edificio', 'parlantes', 'infocus', 'pc', 'monitor', 'teclado', 'mouse'], 'string']
         ];
     }
 
@@ -40,6 +48,20 @@ class datAulas extends \yii\db\ActiveRecord
             'id' => 'ID',
             'nombre' => 'Nombre',
             'edificio' => 'Edificio',
+            'parlantes' => 'Parlantes',
+            'infocus' => 'Infocus',
+            'pc' => 'Pc',
+            'monitor' => 'Monitor',
+            'teclado' => 'Teclado',
+            'mouse' => 'Mouse',
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDatHorarios()
+    {
+        return $this->hasMany(DatHorario::className(), ['id_aula' => 'id']);
     }
 }

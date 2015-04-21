@@ -49,6 +49,9 @@ class AulasController extends \yii\web\Controller
             $count = datAulas::find()->count();
             $query = datAulas::find();
             $data = $query->offset($offset)->limit($limit)->orderBy('id')->asArray()->all();
+            /*foreach ($data as $key => $value) {
+                if($value)
+            }*/
         
             echo json_encode(array('count' => $count, 'data' => $data));
         }
@@ -94,6 +97,12 @@ class AulasController extends \yii\web\Controller
 
         $model->nombre          = $request->post('nombre');
         $model->edificio        = $request->post('edificio');
+        $model->parlantes       = $request->post('parlantes');
+        $model->infocus         = $request->post('infocus');
+        $model->pc              = $request->post('pc');
+        $model->monitor         = $request->post('monitor');
+        $model->teclado         = $request->post('teclado');
+        $model->mouse           = $request->post('mouse');
 
         if ($model->save()) {
             $result = new \stdClass();
@@ -125,6 +134,13 @@ class AulasController extends \yii\web\Controller
         $model = $this->findModel($id);
         $model->nombre          = $nombre;
         $model->edificio        = $edificio;
+        $model->parlantes       = $request->post('parlantes');
+        $model->infocus         = $request->post('infocus');
+        $model->pc              = $request->post('pc');
+        $model->monitor         = $request->post('monitor');
+        $model->teclado         = $request->post('teclado');
+        $model->mouse           = $request->post('mouse');
+
         
         if ($model->save()) {
             $result = new \stdClass();

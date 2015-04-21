@@ -17,7 +17,13 @@ Ext.onReady(function () {
         }, [
             {name: 'id'},
             {name: 'nombre'},
-            {name: 'edificio'}
+            {name: 'edificio'},
+            {name: 'parlantes'},
+            {name: 'infocus'},
+            {name: 'pc'},
+            {name: 'monitor'},
+            {name: 'teclado'},
+            {name: 'mouse'}
         ])
     });
 
@@ -39,10 +45,49 @@ Ext.onReady(function () {
             allowBlank: true,
             name: 'id',
             hidden: true
+        },
+        {
+            xtype: 'fieldset',
+            //title: 'Individual Checkboxes',
+            autoHeight: true,
+            defaultType: 'checkbox', // each item will be a checkbox
+            items: [{
+                // Use the default, automatic layout to distribute the controls evenly
+                // across a single row
+                xtype: 'checkboxgroup',
+                fieldLabel: 'Inventario',
+                items: [
+                    {boxLabel: 'Parlantes', name: 'parlantes'},
+                    {boxLabel: 'Infocus', name: 'infocus'},
+                ]
+            },
+            {
+                // Use the default, automatic layout to distribute the controls evenly
+                // across a single row
+                xtype: 'checkboxgroup',
+                //fieldLabel: 'Auto Layout',
+                items: [
+                    {boxLabel: 'PC', name: 'pc'},
+                    {boxLabel: 'Monitor', name: 'monitor'},
+                ]
+            },
+            {
+                // Use the default, automatic layout to distribute the controls evenly
+                // across a single row
+                xtype: 'checkboxgroup',
+                //fieldLabel: 'Auto Layout',
+                items: [
+                    {boxLabel: 'Teclado', name: 'teclado'},
+                    {boxLabel: 'Mouse', name: 'mouse'},
+                ]
+            }
+
+            ]
         }
     ];
 
     Ext.gest_aulas.fp = new Ext.form.FormPanel({
+        id:'aulasfp',
         frame: true,
         bodyStyle: 'padding: 6px',
         labelWidth: 60,
@@ -61,9 +106,10 @@ Ext.onReady(function () {
                 Ext.gest_aulas.win = new Ext.Window({
                     closeAction: 'hide',
                     title: title,
-                    height: 141,
+                    height: 240,
                     width: 300,
                     constrain: true,
+                    modal:true,
                     items: [Ext.gest_aulas.fp],
                     buttons: [
                         {
@@ -130,9 +176,10 @@ Ext.onReady(function () {
                 Ext.gest_aulas.winmod = new Ext.Window({
                     closeAction: 'hide',
                     title: title,
-                    height: 141,
+                    height: 240,
                     width: 300,
                     constrain: true,
+                    modal:true,
                     items: [Ext.gest_aulas.fp],
                     buttons: [
                         {
@@ -247,6 +294,15 @@ Ext.onReady(function () {
         icon: '../../images/lupa.png'
     });
 
+    function inventario(val){
+        if (val == 'on') {
+            return '<img src="../../images/validado.png" />';
+        } else {
+            return '<img src="../../images/Remove_16x16.png" />';
+        }
+        return val;
+    }
+
     Ext.gest_aulas.tbFill = new Ext.Toolbar.Fill();
 
     Ext.gest_aulas.sm = new Ext.grid.RowSelectionModel({});
@@ -265,8 +321,14 @@ Ext.onReady(function () {
         columns: [
             new Ext.grid.RowNumberer(),
             {hidden: true, hideable: false, dataIndex: 'id'},
-            {header: 'Nombre', width: 400, dataIndex: 'nombre'},
-            {header: 'Edificio', width: 400, dataIndex: 'edificio'}
+            {header: 'Nombre', width: 150, dataIndex: 'nombre'},
+            {header: 'Edificio', width: 150, dataIndex: 'edificio'},
+            {header: 'Parlantes', width: 80, dataIndex: 'parlantes', renderer: inventario},
+            {header: 'Infocus', width: 80, dataIndex: 'infocus', renderer: inventario},
+            {header: 'PC', width: 80, dataIndex: 'pc', renderer: inventario},
+            {header: 'Monitor', width: 80, dataIndex: 'monitor', renderer: inventario},
+            {header: 'Teclado', width: 80, dataIndex: 'teclado', renderer: inventario},
+            {header: 'Mouse', width: 80, dataIndex: 'mouse', renderer: inventario}
         ],
         tbar: [
             Ext.gest_aulas.addBtn,'-',
