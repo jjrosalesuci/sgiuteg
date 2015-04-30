@@ -171,14 +171,15 @@ Ext.onReady(function(){
                                                 responseData = Ext.decode(response.responseText);
                                                 if (responseData.success == true) {
                                                     Ext.MessageBox.alert('Información', 'Se inició correctamente.');
-                                                    //Ext.getCmp('iniciar').disable(); 
-                                                    //Ext.asistencia.stHorarios.load();
                                                 }
                                                 else if(responseData.success == 'docente'){
                                                     Ext.MessageBox.alert('Error!!!', 'Usted no puede suplantarse.');
                                                 }
                                                 else if(responseData.success == 'todavia'){
                                                     Ext.MessageBox.alert('Error!!!', 'Todavía no es Hora.');
+                                                }
+                                                else if(responseData.success == 'concluido'){
+                                                    Ext.MessageBox.alert('Error!!!', 'Demasiado tarde para iniciar.');
                                                 }
                                                 else {
                                                     Ext.MessageBox.alert('Error!!!', 'Ya fue iniciado!!');
@@ -220,7 +221,6 @@ Ext.onReady(function(){
                                                 responseData = Ext.decode(response.responseText);
                                                 if (responseData.success == true) {
                                                     Ext.MessageBox.alert('Información', 'Se finalizó correctamente.'); 
-                                                    //Ext.asistencia.stHorarios.load();
                                                 }
                                                 else if(responseData.success == false){
                                                     Ext.MessageBox.alert('Error!!!', 'Ya fue finalizado!!');
@@ -230,6 +230,9 @@ Ext.onReady(function(){
                                                 }
                                                 else if(responseData.success == 'antes_hora'){
                                                     Ext.MessageBox.alert('Error!!!', 'No se puede finalizar.');
+                                                }
+                                                else if(responseData.success == 'concluido'){
+                                                    Ext.MessageBox.alert('Error!!!', 'Demasiado tarde para finalizar.');
                                                 }
                                                 else if(responseData.success == 'noiniciado'){
                                                     Ext.MessageBox.alert('Error!!!', 'El turno no ha sido iniciado!!');
@@ -279,14 +282,7 @@ Ext.onReady(function(){
                 xtype:'checkbox'
             },'-',
             Ext.asistencia.combodocentes
-        ]/*,
-        bbar: new Ext.PagingToolbar({
-            pageSize: 14,
-            store: Ext.asistencia.stHorarios,
-            displayInfo: true,
-            displayMsg: 'Resultados {0} - {1} de {2}',
-            emptyMsg: 'Ning&uacute;n resultado para mostrar.'
-        })*/
+        ]
     });
 
     function inventario(val){

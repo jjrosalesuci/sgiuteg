@@ -215,6 +215,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->id_aula             = $request->post('nombre_aula_lunes');
 		        $model->dia_semana          = 'LUNES';
 		        $model->id_trimestre        = $request->post('periodo');
+                $model->modalidad           = $request->post('modalidad');
                 $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
@@ -234,6 +235,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->id_aula             = $request->post('nombre_aula_martes');
 		        $model->dia_semana          = 'MARTES';
 		        $model->id_trimestre        = $request->post('periodo');
+                $model->modalidad           = $request->post('modalidad');
                 $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
@@ -253,6 +255,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->id_aula             = $request->post('nombre_aula_miercoles');
 		        $model->dia_semana          = 'MIÉRCOLES';
 		        $model->id_trimestre        = $request->post('periodo');
+                $model->modalidad           = $request->post('modalidad');
                 $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
@@ -272,6 +275,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->id_aula             = $request->post('nombre_aula_jueves');
 		        $model->dia_semana          = 'JUEVES';
 		        $model->id_trimestre        = $request->post('periodo');
+                $model->modalidad           = $request->post('modalidad');
                 $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
@@ -291,6 +295,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->id_aula             = $request->post('nombre_aula_viernes');
 		        $model->dia_semana          = 'VIERNES';
 		        $model->id_trimestre        = $request->post('periodo');
+                $model->modalidad           = $request->post('modalidad');
                 $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
@@ -310,6 +315,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->id_aula             = $request->post('nombre_aula_sabado');
 		        $model->dia_semana          = 'SÁBADO';
 		        $model->id_trimestre        = $request->post('periodo');
+                $model->modalidad           = $request->post('modalidad');
                 $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
@@ -329,6 +335,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->id_aula             = $request->post('nombre_aula_domingo');
 		        $model->dia_semana          = 'DOMINGO';
 		        $model->id_trimestre        = $request->post('periodo');
+                $model->modalidad           = $request->post('modalidad');
                 $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
