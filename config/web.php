@@ -63,14 +63,14 @@ $config = [
                  'class' => 'yii\db\Connection',
                  'dsn' => 'pgsql:host=127.0.0.1;dbname=arquitectura',
 		 'username' => 'postgres',
-		 'password' => 'uteg1501',
+		 'password' => '',
 		 'charset' => 'utf8'
                 ],
         'db_siga' =>[
                  'class' => 'yii\db\Connection',
-                 'dsn' => 'mysql:host=186.5.76.142;dbname=siga', //maybe other dbms such as psql,...
+                 'dsn' => 'mysql:host=127.0.0.1;dbname=siga', //maybe other dbms such as psql,...
                  'username' => 'sis_siga',
-                 'password' => 'sissiga123'
+                 'password' => ''
                 ]
     ],
     'params' => $params,
