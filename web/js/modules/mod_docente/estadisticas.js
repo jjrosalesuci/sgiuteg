@@ -8,6 +8,7 @@ Ext.onReady(function() {
                 id: 'fechainicio',
                 format: 'Y-m-d',
                 //name:'fecha_reporte',
+                disabled: 'true',
                 listeners: {'select': function(){
                         if(Ext.getCmp('fechafin').getValue()!='')
                         {
@@ -15,42 +16,47 @@ Ext.onReady(function() {
                         }
                 }},
                 //value: moment().format('YYYY[-]MM[-]DD'),
-                allowBlank: false
+                allowBlank: true
     });
 
     Ext.gest_estadisticas.fechafin = new Ext.form.DateField({
                 fieldLabel: 'Buscar por  fecha',
                 id: 'fechafin',
                 format: 'Y-m-d',
+                disabled: 'true',
                 //name:'fecha_reporte1',
                 listeners: {'select': function(){
                         if(Ext.getCmp('fechainicio').getValue()!='')
                         {
-                           Ext.gest_estadisticas.groupingStore.load({params:{fecha_rango_1:this.getValue(),fecha_rango_2:Ext.getCmp('fechainicio').getValue()}}); 
+                           Ext.gest_estadisticas.groupingStore.load({params:{fecha_rango_1:Ext.getCmp('fechainicio').getValue(),fecha_rango_2:this.getValue(),}}); 
                         }
                         else{
                             Ext.MessageBox.alert('Error..', 'Campo vacio!!');
                         }
                 }},
                 //value: moment().format('YYYY[-]MM[-]DD'),
-                allowBlank: false
+                allowBlank: true
     });
     
     Ext.gest_estadisticas.reader = new Ext.data.JsonReader({
       idProperty: 'id',
       root: 'data',
       totalProperty: 'count',
-      fields: ['nombre_docente', 'total_min_atrasos', 'total_min_salidas_ah', 'total_horas_trabajadas','total_horas_faltas','total_horas_reemplazo']
-                /*{ name: 'e_estudiante', type: 'int' },
-                { name: 'a_evaluacion', type: 'int' },
-                { name: 'e_decano', type: 'int' }]  */
+      fields: ['id_docente','nombre_docente', 'total_min_atrasos', 'total_min_salidas_ah', 'total_horas_trabajadas','total_horas_faltas','total_horas_reemplazo']
+                /*{ name: 'total_min_atrasos', type: 'date' },
+                { name: 'total_min_salidas_ah', type: 'date' },
+                { name: 'total_horas_trabajadas', type: 'date' },
+                { name: 'total_horas_faltas', type: 'date' },
+                { name: 'total_horas_reemplazo', type: 'date' }] */
     });
 
     Ext.gest_estadisticas.groupingStore = new Ext.data.GroupingStore({
       url: 'estadisticas/cargar',
       listeners: {'beforeload': function (store, objeto) {
-            store.baseParams.query         = Ext.getCmp('buscar_usuario').getRawValue();
-            store.baseParams.id_periodo    = Ext.gest_estadisticas.comboperiodolectivo.getValue();
+            store.baseParams.query            = Ext.getCmp('buscar_usuario').getRawValue();
+            store.baseParams.id_periodo       = Ext.gest_estadisticas.comboperiodolectivo.getValue();
+            store.baseParams.fecha_rango_1    = Ext.gest_estadisticas.fechainicio.getValue();
+            store.baseParams.fecha_rango_2    = Ext.gest_estadisticas.fechafin.getValue();
       }},
       //autoLoad: true,
       reader: Ext.gest_estadisticas.reader,
@@ -102,10 +108,11 @@ Ext.onReady(function() {
         minChars:1,
         pageSize : 20,
         totalProperty : 'count',
+        forceSelection: true,
         mode: 'remote',   
         listeners: {
             'select': function(combo,record,index){
-               Ext.gest_estadisticas.groupingStore.load({params: {start: 0,limit: 14}});               
+               Ext.gest_estadisticas.groupingStore.load(/*{params: {start: 0,limit: 7}}*/);               
             }
         }
     }); 
@@ -115,6 +122,7 @@ Ext.onReady(function() {
         store: Ext.gest_estadisticas.groupingStore,
         sm: Ext.gest_estadisticas.sm,
         columns: [
+            {hidden:true,header: "Id", width: 40, dataIndex: 'id_docente'},
             {id:'nombre_docente',hidden:true,header: "Docente", width: 40, sortable: true, dataIndex: 'nombre_docente'},
             {header: "T/H TRABAJADAS", width: 20, sortable: true,dataIndex: 'total_horas_trabajadas'},
             {header: "T/H-M ATRASOS", width: 20, sortable: true, dataIndex: 'total_min_atrasos'},
@@ -128,10 +136,15 @@ Ext.onReady(function() {
                 items: [{
                     icon   : '../../images/view.png',
                     tooltip: 'Ver estadisticas',
-                    handler: function() {
-                        Ext.gest_estadisticas.ventana.show();
-                        //var rec = Ext.gest_estadisticas.groupingStore.getAt(rowIndex);
-                        //window.location="resultados/resultado"+"?id_trabajador="+rec.data.id_trabajador+"&id_periodo="+rec.data.id_periodo+"&nombre_periodo="+rec.data.nombre_periodo+"&nombre_trabajador="+rec.data.nombre_trabajador+"&nombre_asignatura="+rec.data.nombre_asignatura+"&id_asignatura="+rec.data.id_asignatura+"";
+                    handler: function(grid, rowIndex, colIndex) {
+                        var rec = Ext.gest_estadisticas.groupingStore.getAt(rowIndex);
+                        if(Ext.gest_estadisticas.comboperiodolectivo.getValue()!=''){
+                            Ext.gest_estadisticas.store1.load({params:{id_docente: rec.data.id_docente, graficar: 'yes',id_periodo: Ext.gest_estadisticas.comboperiodolectivo.getValue()}});
+                            Ext.gest_estadisticas.ventana.show();    
+                        }else if(Ext.getCmp('por_fecha').checked == true){
+                            Ext.gest_estadisticas.store1.load({params:{id_docente: rec.data.id_docente, graficar: 'por_fecha',fecha_rango_1:Ext.getCmp('fechainicio').getValue(),fecha_rango_2:Ext.getCmp('fechafin').getValue()}});
+                            Ext.gest_estadisticas.ventana.show();
+                        }
                     }
                 }]
             }
@@ -154,6 +167,29 @@ Ext.onReady(function() {
         iconCls: 'icon-grid',
         tbar: [
                 'Seleccione el périodo:',Ext.gest_estadisticas.comboperiodolectivo,'-',
+                'Por fecha:',
+                {
+                    xtype: 'checkbox',
+                    id: 'por_fecha',
+                    listeners: {'check':function(){
+                        if (this.checked == true) {
+                            Ext.gest_estadisticas.comboperiodolectivo.setValue('');
+                            Ext.gest_estadisticas.comboperiodolectivo.setDisabled(true);
+                            Ext.gest_estadisticas.fechainicio.setDisabled(false);
+                            Ext.gest_estadisticas.fechafin.setDisabled(false);
+                            Ext.gest_estadisticas.groupingStore.removeAll();
+                        }else{
+                            Ext.gest_estadisticas.fechainicio.setValue('');
+                            Ext.gest_estadisticas.fechafin.setValue('');
+                            Ext.gest_estadisticas.comboperiodolectivo.setDisabled(false);
+                            Ext.gest_estadisticas.fechainicio.setDisabled(true);
+                            Ext.gest_estadisticas.fechafin.setDisabled(true);
+                            Ext.gest_estadisticas.groupingStore.removeAll();
+                        };
+                    }
+
+                    }
+                },
                 'Inicio:',
                 Ext.gest_estadisticas.fechainicio,
                 'Fin:',
@@ -167,34 +203,44 @@ Ext.onReady(function() {
                       name: 'nombres',
                       id:'buscar_usuario',
                       enableKeyEvents:true,
-                      /*listeners:{
+                      listeners:{
                                  'keyup':function(textField, eventoObject){
                                             if(eventoObject.getCharCode() == 13){
-                                                 if(Ext.gest_estadisticas.comboperiodolectivo.getValue()==''){
-                                                    alert('Seleccione una evaluación');
+                                                 if(Ext.gest_estadisticas.comboperiodolectivo.getValue()==''&&Ext.getCmp('por_fecha').checked == false){
+                                                    alert('Seleccione un periodo o rango de fecha');
+                                                 }else if(Ext.gest_estadisticas.comboperiodolectivo.getValue()!=''&&Ext.getCmp('por_fecha').checked == false){
+                                                    Ext.gest_estadisticas.groupingStore.load({params: {start: 0,limit: 7}});
+                                                 }
+                                                 else if(Ext.gest_estadisticas.comboperiodolectivo.getValue()==''&&Ext.getCmp('por_fecha').checked == true&&(Ext.gest_estadisticas.fechainicio.getValue()==''||Ext.gest_estadisticas.fechafin.getValue()=='')){
+                                                    alert('Rellene los campos vacios!!');
                                                  }else{
-                                                    Ext.gest_estadisticas.groupingStore.load({params: {start: 0,limit: 14}});
+                                                    Ext.gest_estadisticas.groupingStore.load({params:{fecha_rango_1:Ext.getCmp('fechainicio').getValue(),fecha_rango_2:Ext.getCmp('fechafin').getValue()}});
                                                  }
                                             }
                                  }
-                      } */     
+                      }     
                 },
                  {
                       text:'Buscar',
                       icon: '../../images/lupa.png',
                       handler : function(){
-                      if(Ext.gest_estadisticas.comboevaluaciones.getValue()==''){
-                                  alert('Seleccione una evaluación');
+                        if(Ext.gest_estadisticas.comboperiodolectivo.getValue()==''&&Ext.getCmp('por_fecha').checked == false){
+                            alert('Seleccione un periodo o rango de fecha');
+                        }else if(Ext.gest_estadisticas.comboperiodolectivo.getValue()!=''&&Ext.getCmp('por_fecha').checked == false){
+                            Ext.gest_estadisticas.groupingStore.load({params: {start: 0,limit: 7}});
+                        }
+                        else if(Ext.gest_estadisticas.comboperiodolectivo.getValue()==''&&Ext.getCmp('por_fecha').checked == true&&(Ext.gest_estadisticas.fechainicio.getValue()==''||Ext.gest_estadisticas.fechafin.getValue()=='')){
+                            alert('Rellene los campos vacios!!');
                         }else{
-                           Ext.gest_estadisticas.groupingStore.load({params: {start: 0,limit: 14}});
-                       }
+                            Ext.gest_estadisticas.groupingStore.load({params:{fecha_rango_1:Ext.getCmp('fechainicio').getValue(),fecha_rango_2:Ext.getCmp('fechafin').getValue()}});
+                        }
                       }
                 }
 
         ],
         renderTo: Ext.getBody(),
         bbar: new Ext.PagingToolbar({
-            pageSize: 14,
+            pageSize: 7,
             store: Ext.gest_estadisticas.groupingStore,
             displayInfo: true,
             displayMsg: 'Resultados {0} - {1} de {2}',
@@ -202,15 +248,16 @@ Ext.onReady(function() {
         })
     });
 
-    var store1 = new Ext.data.JsonStore({
-        fields:['name', 'visits', 'views'],
-        data: [
-            {name:'T/H REEMPLAZO', visits: 2, views: 4},
-            {name:'T/H-M ATRASOS', visits: 3, views: 5},
-            {name:'T/H FALTAS', visits: 2, views: 4},
-            {name:'T/H-M SALIDAS ANTES DE HORA', visits: 0, views: 0},
-            {name:'T/H-M TARDE', visits: 7, views: 10},
-        ]
+    Ext.gest_estadisticas.store1 = new Ext.data.Store({
+        url: 'estadisticas/cargar',
+        reader: new Ext.data.JsonReader({
+            root: "data",
+        }, [
+            {name: 'nombre_docente'},
+            {name: 'name'},
+            {name: 'total'},
+            {name: 'total_general'},
+        ]),
     });
 
 
@@ -224,20 +271,22 @@ Ext.onReady(function() {
         modal:true,
         items:[{
             xtype: 'columnchart',
-            store: store1,
+            store: Ext.gest_estadisticas.store1,
             url:'../../resources/charts.swf',
             xField: 'name',
-            yAxis: new Ext.chart.NumericAxis({
-                displayName: 'T/H TRABAJADAS',
-                //labelRenderer : Ext.util.Format.numberRenderer('0')
+            xLabel: 'Esto es una prueba',
+            /*yAxis: new Ext.chart.NumericAxis({
+                displayName: 'Prueba',
+                //labelRenderer : Ext.util.Format.numberRenderer('0,0')
+                //labelRenderer: function(date) { return date.format("d.H");}
             }),
-            tipRenderer : function(chart, record, index, series){
+            /*tipRenderer : function(chart, record, index, series){
                 if(series.yField == 'visits'){
                     return Ext.util.Format.number(record.data.visits, '0,0') + ' ' + record.data.name;
                 }else{
                     return Ext.util.Format.number(record.data.views, '0,0') + ' ' + record.data.name;
                 }
-            },
+            },*/
             chartStyle: {
                 padding: 10,
                 animationEnabled: true,
@@ -278,21 +327,27 @@ Ext.onReady(function() {
             },
             series: [{
                 type: 'column',
-                displayName: 'Page Views',
-                yField: 'views',
+                displayName: 'Comportamiento Universidad',
+                yField: ['total_general'],
                 style: {
-                    image:'bar.gif',
+                    image:'../../bar.gif',
                     mode: 'stretch',
                     color:0x99BBE8
                 }
             },{
                 type:'line',
-                displayName: 'Visits',
-                yField: 'visits',
+                displayName: 'Comportamiento Docente',
+                yField: 'total',
                 style: {
                     color: 0x15428B
                 }
-            }]
+            }
+            ],
+            extraStyle:{            //Step 1
+                                legend:{        //Step 2
+                                    display: 'left'//Step 3
+                                }
+                            }
         }]
     });
 

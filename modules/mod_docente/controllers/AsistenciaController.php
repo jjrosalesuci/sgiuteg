@@ -69,7 +69,10 @@ class AsistenciaController extends \yii\web\Controller
                           ->andWhere(['id_trimestre' => $id_periodo_vigente]) 
                           ->asArray()
                           ->all();
-
+            if($data==''){
+                echo ("Usted no tiene turnos planificados para hoy");
+                die();
+            }
             $arreglo = array();
                 foreach ($data as $key => $value) {
                     $value['nombre_aula'] = $this->actiongetAula($value['id_aula'])->nombre;
@@ -105,23 +108,11 @@ class AsistenciaController extends \yii\web\Controller
         $suplantar = $request->post('suplantar');
         $user_acl = \Yii::$app->user->identity->id_user_acl;
 
+        $hora_inicio = date("H:i:s",strtotime($request->post('hora_inicio')));
+
         $hora1111 = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_inicio,'00:30:00');
         $hora2222 = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,'00:30:00');
-
-        if($request->post('hora_inicio')<$hora1111){
-            $result = new \stdClass();
-            $result->success = 'todavia';
-            $result->msg = 'Todavia no es Hora.';
-            echo json_encode($result);
-            die();
-        }
-        if($request->post('hora_inicio')>$hora2222){
-            $result = new \stdClass();
-            $result->success = 'concluido';
-            $result->msg = 'Demasiado tarde.';
-            echo json_encode($result);
-            die();
-        }
+        
 
         if($suplantar=='true'){
             $model->id_docent_sup = $this->findDocenteid($user_acl);
@@ -132,21 +123,47 @@ class AsistenciaController extends \yii\web\Controller
 
         $model->id_turno        = $request->post('id_turno');
         $model->fecha           = $request->post('fecha');
-        $model->hora_inicio     = $request->post('hora_inicio');
+        $model->hora_inicio     = $hora_inicio;
+
 
         $query = datAsistencia::find()->where(['id_turno' => $request->post('id_turno')])
                                       ->andWhere(['fecha' => $request->post('fecha')])
                                       ->one();
+
+        if($model->id_docent_sup==$this->findModelHorario($request->post('id_turno'))->id_docente){
+            $result = new \stdClass();
+            $result->success = 'docente';
+            $result->msg = 'Usted no puede suplantarse.';
+            echo json_encode($result);
+            die;
+        }
+
+        if($hora_inicio<$hora1111&&!$query){
+            $result = new \stdClass();
+            $result->success = 'todavia';
+            $result->msg = 'Todavia no es Hora.';
+            echo json_encode($result);
+            die();
+        }
+        if($hora_inicio>$hora2222&&!$query){
+            $result = new \stdClass();
+            $result->success = 'concluido';
+            $result->msg = 'Demasiado tarde.';
+            echo json_encode($result);
+            die();
+        }
+
         if(!$query&&$model->id_docent_sup!=$this->findModelHorario($request->post('id_turno'))->id_docente)
         {              
             if ($model->save()) {
                 $reporte = new datEstadisticas();
-                $hora1 = new \DateTime($request->post('hora_inicio'));
-                $hora2 = new \DateTime($this->findModelHorario($request->post('id_turno'))->hora_inicio);
+                $hora1 = $hora_inicio;
+                $hora2 = $this->findModelHorario($request->post('id_turno'))->hora_inicio;
                 if($hora1 > $hora2){
                     $reporte->id_horario        = $request->post('id_turno');
+                    $reporte->id_tri          = $this->findModelHorario($request->post('id_turno'))->id_trimestre;
                     $reporte->id_docente        = $this->findModelHorario($request->post('id_turno'))->id_docente;
-                    $reporte->minutos_atrasos = $this->restaHoras($request->post('hora_inicio'),$this->findModelHorario($request->post('id_turno'))->hora_inicio);
+                    $reporte->minutos_atrasos = $this->restaHoras($hora_inicio,$this->findModelHorario($request->post('id_turno'))->hora_inicio);
                     if($reporte->save()){
                         $result = new \stdClass();
                         $result->success = true;
@@ -177,7 +194,7 @@ class AsistenciaController extends \yii\web\Controller
         else if($suplantar=='true'&&$model->id_docent_sup==$this->findModelHorario($request->post('id_turno'))->id_docente){
             $result = new \stdClass();
             $result->success = 'docente';
-            $result->msg = 'Usted ya ha sido suplantado.';
+            $result->msg = 'Usted no puede suplantarse.';
             echo json_encode($result);
         }
         else {
@@ -194,26 +211,10 @@ class AsistenciaController extends \yii\web\Controller
         $suplantar = $request->post('suplantar');
         $user_acl = \Yii::$app->user->identity->id_user_acl;
 
-        $hora11 = new \DateTime($request->post('hora_fin'));
-        $hora22 = new \DateTime($this->findModelHorario($request->post('id_turno'))->hora_inicio);
+        $hora_fin = date("H:i:s",strtotime($request->post('hora_fin')));
+        $hora22 = $this->findModelHorario($request->post('id_turno'))->hora_inicio;
 
-        $hora1111 = $this->sumaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,'00:60:00');
-
-        if($request->post('hora_fin')>$hora1111){
-            $result = new \stdClass();
-            $result->success = 'concluido';
-            $result->msg = 'Demasiado tarde.';
-            echo json_encode($result);
-            die();
-        }
-
-        if($hora11<$hora22){
-            $result = new \stdClass();
-            $result->success = 'antes_hora';
-            $result->msg = 'No se puede finalizar.';
-            echo json_encode($result);
-            die();
-        }
+        $hora1111 = $this->sumaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,'01:00:00');
 
         $id_turno     = $request->post('id_turno');
         $fecha        = $request->post('fecha');
@@ -223,18 +224,50 @@ class AsistenciaController extends \yii\web\Controller
                                       ->one();
         $query1 = datAsistencia::find()->where(['id_turno' => $id_turno])
                                       ->andWhere(['fecha' => $fecha])
-                                      ->one();   
+                                      ->one();
+
+        if($hora_fin>$hora1111&&$suplantar=='false'){
+                if ($query!=null) {
+                    if($query1->hora_fin==''){
+                        $result = new \stdClass();
+                        $result->success = 'concluido';
+                        $result->msg = 'Demasiado tarde.';
+                        echo json_encode($result);
+                        die();
+                    }
+                }else if($query==null){
+                    $result = new \stdClass();
+                    $result->success = 'noiniciado';
+                    $result->msg = 'Ocurrió un error.';
+                    echo json_encode($result);
+                    die();
+                }
+                else{
+                    $result = new \stdClass();
+                    $result->success = false;
+                    $result->msg = 'Ya fue finalizado!!';
+                    echo json_encode($result);
+                    die();
+                }
+        }
+        if($hora_fin<$hora22&&$query!=null){
+            $result = new \stdClass();
+            $result->success = 'antes_hora';
+            $result->msg = 'No se puede finalizar.';
+            echo json_encode($result);
+            die();
+        }   
 
         if($query!=null&&$suplantar=='true'&&$this->findDocenteid($user_acl)==$query->id_docent_sup){
-            $query->hora_fin        = $request->post('hora_fin');
+            $query->hora_fin        = $hora_fin;
             $query->ip_fin          = $request->userIP;
             if ($query->save()) {
                 $reporte = $this->findModelEstadistica($id_turno);
                     if($reporte){
-                        $hora1 = new \DateTime($request->post('hora_fin'));
-                        $hora2 = new \DateTime($this->findModelHorario($id_turno)->hora_fin);
+                        $hora1 = $hora_fin;
+                        $hora2 = $this->findModelHorario($id_turno)->hora_fin;
                         if($hora1 < $hora2){
-                            $reporte->minutos_salidas_ah = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,$request->post('hora_fin'));
+                            $reporte->minutos_salidas_ah = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,$hora_fin);
                             $horas_total_turno           = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,$this->findModelHorario($request->post('id_turno'))->hora_inicio);
                             $total_a_restar              = $this->sumaHoras($reporte->minutos_atrasos,$reporte->minutos_salidas_ah);
                             $reporte->horas_trabajadas   = $this->restaHoras($horas_total_turno,$total_a_restar);
@@ -273,13 +306,14 @@ class AsistenciaController extends \yii\web\Controller
                         }
                     }
                     else if($reporte==false){
-                        $hora1 = new \DateTime($request->post('hora_fin'));
+                        $hora1 = $hora_fin;
                         $hora2 = new \DateTime($this->findModelHorario($id_turno)->hora_fin);
                         if($hora1 < $hora2){
                             $reporte = new datEstadisticas();
                             $reporte->id_horario         = $request->post('id_turno');
+                            $reporte->id_tri             = $this->findModelHorario($request->post('id_turno'))->id_trimestre;
                             $reporte->id_docente         = $this->findModelHorario($request->post('id_turno'))->id_docente;
-                            $reporte->minutos_salidas_ah = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,$request->post('hora_fin'));
+                            $reporte->minutos_salidas_ah = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,$hora_fin);
                             $horas_total_turno           = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,$this->findModelHorario($request->post('id_turno'))->hora_inicio);
                             $reporte->horas_trabajadas   = $this->restaHoras($horas_total_turno,$reporte->minutos_salidas_ah);
                             $reporte->horas_faltas       = $horas_total_turno;
@@ -300,6 +334,7 @@ class AsistenciaController extends \yii\web\Controller
                         else{
                             $reporte = new datEstadisticas();
                             $reporte->id_horario        = $request->post('id_turno');
+                            $reporte->id_tri            = $this->findModelHorario($request->post('id_turno'))->id_trimestre;
                             $reporte->id_docente        = $this->findModelHorario($request->post('id_turno'))->id_docente;
                             $reporte->horas_trabajadas  = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,$this->findModelHorario($request->post('id_turno'))->hora_inicio);
                             $reporte->horas_faltas      = $reporte->horas_trabajadas;
@@ -320,15 +355,15 @@ class AsistenciaController extends \yii\web\Controller
             } 
         }
         else if($query!=null&&$suplantar=='false'&&$query->id_docent_sup==''){
-                $query->hora_fin        = $request->post('hora_fin');
+                $query->hora_fin        = $hora_fin;
                 $query->ip_fin          = $request->userIP;
                 if ($query->save()) {
                     $reporte = $this->findModelEstadistica($id_turno);
                     if($reporte){
-                        $hora1 = new \DateTime($request->post('hora_fin'));
-                        $hora2 = new \DateTime($this->findModelHorario($id_turno)->hora_fin);
+                        $hora1 = $hora_fin;
+                        $hora2 = $this->findModelHorario($id_turno)->hora_fin;
                         if($hora1 < $hora2){
-                            $reporte->minutos_salidas_ah = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,$request->post('hora_fin'));
+                            $reporte->minutos_salidas_ah = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,$hora_fin);
                             $horas_total_turno           = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,$this->findModelHorario($request->post('id_turno'))->hora_inicio);
                             $total_a_restar              = $this->sumaHoras($reporte->minutos_atrasos,$reporte->minutos_salidas_ah);
                             $reporte->horas_trabajadas   = $this->restaHoras($horas_total_turno,$total_a_restar);
@@ -363,13 +398,14 @@ class AsistenciaController extends \yii\web\Controller
                         }
                     }
                     else if($reporte==false){
-                        $hora1 = new \DateTime($request->post('hora_fin'));
-                        $hora2 = new \DateTime($this->findModelHorario($id_turno)->hora_fin);
+                        $hora1 = $hora_fin;
+                        $hora2 = $this->findModelHorario($id_turno)->hora_fin;
                         if($hora1 < $hora2){
                             $reporte = new datEstadisticas();
                             $reporte->id_horario         = $request->post('id_turno');
+                            $reporte->id_tri             = $this->findModelHorario($request->post('id_turno'))->id_trimestre;
                             $reporte->id_docente         = $this->findModelHorario($request->post('id_turno'))->id_docente;
-                            $reporte->minutos_salidas_ah = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,$request->post('hora_fin'));
+                            $reporte->minutos_salidas_ah = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,$hora_fin);
                             $horas_total_turno           = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,$this->findModelHorario($request->post('id_turno'))->hora_inicio);
                             $reporte->horas_trabajadas   = $this->restaHoras($horas_total_turno,$reporte->minutos_salidas_ah);
                             if($reporte->save()){
@@ -387,6 +423,7 @@ class AsistenciaController extends \yii\web\Controller
                         }
                         else{
                             $reporte = new datEstadisticas();
+                            $reporte->id_tri            = $this->findModelHorario($request->post('id_turno'))->id_trimestre;
                             $reporte->id_docente        = $this->findModelHorario($request->post('id_turno'))->id_docente;
                             $reporte->id_horario        = $request->post('id_turno');
                             $reporte->horas_trabajadas  = $this->restaHoras($this->findModelHorario($request->post('id_turno'))->hora_fin,$this->findModelHorario($request->post('id_turno'))->hora_inicio);

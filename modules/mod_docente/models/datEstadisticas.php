@@ -15,6 +15,7 @@ use Yii;
  * @property string $horas_faltas
  * @property string $horas_reemplazo
  * @property integer $id_docente
+ * @property integer $id_tri
  */
 class datEstadisticas extends \yii\db\ActiveRecord
 {
@@ -32,7 +33,7 @@ class datEstadisticas extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_horario', 'id_docente'], 'integer'],
+            [['id_horario', 'id_docente', 'id_tri'], 'integer'],
             [['minutos_atrasos', 'minutos_salidas_ah', 'horas_trabajadas', 'horas_faltas', 'horas_reemplazo'], 'safe']
         ];
     }
@@ -51,6 +52,7 @@ class datEstadisticas extends \yii\db\ActiveRecord
             'horas_faltas' => 'Horas Faltas',
             'horas_reemplazo' => 'Horas Reemplazo',
             'id_docente' => 'Id Docente',
+            'id_tri' => 'Id Tri',
         ];
     }
 }

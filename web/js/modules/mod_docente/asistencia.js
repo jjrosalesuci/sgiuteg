@@ -170,19 +170,19 @@ Ext.onReady(function(){
                                             callback: function (options, success, response) {
                                                 responseData = Ext.decode(response.responseText);
                                                 if (responseData.success == true) {
-                                                    Ext.MessageBox.alert('Información', 'Se inició correctamente.');
+                                                    Ext.MessageBox.alert('Información', 'El turno se inició correctamente.');
                                                 }
                                                 else if(responseData.success == 'docente'){
                                                     Ext.MessageBox.alert('Error!!!', 'Usted no puede suplantarse.');
                                                 }
                                                 else if(responseData.success == 'todavia'){
-                                                    Ext.MessageBox.alert('Error!!!', 'Todavía no es Hora.');
+                                                    Ext.MessageBox.alert('Error!!!', 'Debe esperar 30 minutos antes para poder iniciar.');
                                                 }
                                                 else if(responseData.success == 'concluido'){
-                                                    Ext.MessageBox.alert('Error!!!', 'Demasiado tarde para iniciar.');
+                                                    Ext.MessageBox.alert('Error!!!', 'Fuera del limite de hora para iniciar.');
                                                 }
                                                 else {
-                                                    Ext.MessageBox.alert('Error!!!', 'Ya fue iniciado!!');
+                                                    Ext.MessageBox.alert('Error!!!', 'Usted ya ha iniciado el turno de clase!!');
                                                 }
                                             }
                                         });
@@ -220,19 +220,19 @@ Ext.onReady(function(){
                                             callback: function (options, success, response) {
                                                 responseData = Ext.decode(response.responseText);
                                                 if (responseData.success == true) {
-                                                    Ext.MessageBox.alert('Información', 'Se finalizó correctamente.'); 
+                                                    Ext.MessageBox.alert('Información', 'El turno fue finalizado correctamente.'); 
                                                 }
                                                 else if(responseData.success == false){
-                                                    Ext.MessageBox.alert('Error!!!', 'Ya fue finalizado!!');
+                                                    Ext.MessageBox.alert('Error!!!', 'Usted ya ha finalizado el turno de clase!!!!');
                                                 }
                                                 else if(responseData.success == 'docente'){
                                                     Ext.MessageBox.alert('Error!!!', 'Usted no puede suplantarse.');
                                                 }
                                                 else if(responseData.success == 'antes_hora'){
-                                                    Ext.MessageBox.alert('Error!!!', 'No se puede finalizar.');
+                                                    Ext.MessageBox.alert('Error!!!', 'El turno no puede ser finalizado en este momento.');
                                                 }
                                                 else if(responseData.success == 'concluido'){
-                                                    Ext.MessageBox.alert('Error!!!', 'Demasiado tarde para finalizar.');
+                                                    Ext.MessageBox.alert('Error!!!', 'Fuera del limite de hora para finalizar.');
                                                 }
                                                 else if(responseData.success == 'noiniciado'){
                                                     Ext.MessageBox.alert('Error!!!', 'El turno no ha sido iniciado!!');
