@@ -296,32 +296,17 @@ class EstadisticasController extends \yii\web\Controller
               $arreglo2[] = $value;
             }
 
-            $uno = $arreglo2[0]['general_min_atrasos'];
-            $dos = $arreglo2[0]['general_min_salidas_ah'];
-            $tres = $arreglo2[0]['general_horas_trabajadas'];
-            $cuatro = $arreglo2[0]['general_horas_faltas'];
-            $cinco = $arreglo2[0]['general_horas_reemplazo'];
-
-            $arreglo3 = array();
-            foreach ($arreglo as $key => $value) {
-              $value['general_min_atrasos'] = $uno;
-              $value['general_min_salidas_ah'] = $dos;
-              $value['general_horas_trabajadas'] = $tres;
-              $value['general_horas_faltas'] = $cuatro;
-              $value['general_horas_reemplazo'] = $cinco;
-              $arreglo3[] = $value;
-            }
-
             $arreglo_final = array();
-            array_push($arreglo_final, array('name' => 'Horas trabajadas', 'total' => $arreglo3[0]['total_horas_trabajadas'],'total_general' => $arreglo3[0]['general_horas_trabajadas']));
-            array_push($arreglo_final, array('name' => 'Horas atrasos', 'total' => $arreglo3[0]['total_min_atrasos'],'total_general' => $arreglo3[0]['general_min_atrasos']));
-            array_push($arreglo_final, array('name' => 'Horas salidas ah', 'total' => $arreglo3[0]['total_min_salidas_ah'],'total_general' => $arreglo3[0]['general_min_salidas_ah']));
-            array_push($arreglo_final, array('name' => 'Horas faltas', 'total' => $arreglo3[0]['total_horas_faltas'],'total_general' => $arreglo3[0]['general_horas_faltas']));
-            array_push($arreglo_final, array('name' => 'Horas reemplazo', 'total' => $arreglo3[0]['total_horas_reemplazo'],'total_general' => $arreglo3[0]['general_horas_reemplazo']));
+            array_push($arreglo_final, array('name' => 'Horas trabajadas', 'total' => $arreglo[0]['total_horas_trabajadas'],'total_general' => $arreglo2[0]['general_horas_trabajadas']));
+            array_push($arreglo_final, array('name' => 'Horas atrasos', 'total' => $arreglo[0]['total_min_atrasos'],'total_general' => $arreglo2[0]['general_min_atrasos']));
+            array_push($arreglo_final, array('name' => 'Horas salidas ah', 'total' => $arreglo[0]['total_min_salidas_ah'],'total_general' => $arreglo2[0]['general_min_salidas_ah']));
+            array_push($arreglo_final, array('name' => 'Horas faltas', 'total' => $arreglo[0]['total_horas_faltas'],'total_general' => $arreglo2[0]['general_horas_faltas']));
+            array_push($arreglo_final, array('name' => 'Horas reemplazo', 'total' => $arreglo[0]['total_horas_reemplazo'],'total_general' => $arreglo2[0]['general_horas_reemplazo']));
             
 
             echo json_encode(array('data' => $arreglo_final));
-          }else if ($request->post('graficar')=='por_fecha') {
+          }
+          else if ($request->post('graficar')=='por_fecha') {
             //die('8');
             $primaryConnection = \Yii::$app->db;
             $command = $primaryConnection->createCommand($sql5);
@@ -348,28 +333,64 @@ class EstadisticasController extends \yii\web\Controller
               $arreglo2[] = $value;
             }
 
-            $uno = $arreglo2[0]['general_min_atrasos'];
-            $dos = $arreglo2[0]['general_min_salidas_ah'];
-            $tres = $arreglo2[0]['general_horas_trabajadas'];
-            $cuatro = $arreglo2[0]['general_horas_faltas'];
-            $cinco = $arreglo2[0]['general_horas_reemplazo'];
+            $arreglo_final = array();
+            array_push($arreglo_final, array('name' => 'Horas trabajadas', 'total' => $arreglo[0]['total_horas_trabajadas'],'total_general' => $arreglo2[0]['general_horas_trabajadas']));
+            array_push($arreglo_final, array('name' => 'Horas atrasos', 'total' => $arreglo[0]['total_min_atrasos'],'total_general' => $arreglo2[0]['general_min_atrasos']));
+            array_push($arreglo_final, array('name' => 'Horas salidas ah', 'total' => $arreglo[0]['total_min_salidas_ah'],'total_general' => $arreglo2[0]['general_min_salidas_ah']));
+            array_push($arreglo_final, array('name' => 'Horas faltas', 'total' => $arreglo[0]['total_horas_faltas'],'total_general' => $arreglo2[0]['general_horas_faltas']));
+            array_push($arreglo_final, array('name' => 'Horas reemplazo', 'total' => $arreglo[0]['total_horas_reemplazo'],'total_general' => $arreglo2[0]['general_horas_reemplazo']));
+            
 
-            $arreglo3 = array();
-            foreach ($arreglo as $key => $value) {
-              $value['general_min_atrasos'] = $uno;
-              $value['general_min_salidas_ah'] = $dos;
-              $value['general_horas_trabajadas'] = $tres;
-              $value['general_horas_faltas'] = $cuatro;
-              $value['general_horas_reemplazo'] = $cinco;
-              $arreglo3[] = $value;
+            echo json_encode(array('data' => $arreglo_final));
+          }
+          else if ($request->post('graficar')=='universidad') {
+            //die('9');
+            $primaryConnection = \Yii::$app->db;
+            $command2 = $primaryConnection->createCommand($sql4);
+            $general = $command2->queryAll();
+            
+            $arreglo2 = array();
+            foreach ($general as $key => $value) {
+              $value['general_min_atrasos'] = $this->formatearHora($value['general_min_atrasos']);
+              $value['general_min_salidas_ah'] = $this->formatearHora($value['general_min_salidas_ah']);
+              $value['general_horas_trabajadas'] = $this->formatearHora($value['general_horas_trabajadas']);
+              $value['general_horas_faltas'] = $this->formatearHora($value['general_horas_faltas']);
+              $value['general_horas_reemplazo'] = $this->formatearHora($value['general_horas_reemplazo']);
+              $arreglo2[] = $value;
             }
 
             $arreglo_final = array();
-            array_push($arreglo_final, array('name' => 'Horas trabajadas', 'total' => $arreglo3[0]['total_horas_trabajadas'],'total_general' => $arreglo3[0]['general_horas_trabajadas']));
-            array_push($arreglo_final, array('name' => 'Horas atrasos', 'total' => $arreglo3[0]['total_min_atrasos'],'total_general' => $arreglo3[0]['general_min_atrasos']));
-            array_push($arreglo_final, array('name' => 'Horas salidas ah', 'total' => $arreglo3[0]['total_min_salidas_ah'],'total_general' => $arreglo3[0]['general_min_salidas_ah']));
-            array_push($arreglo_final, array('name' => 'Horas faltas', 'total' => $arreglo3[0]['total_horas_faltas'],'total_general' => $arreglo3[0]['general_horas_faltas']));
-            array_push($arreglo_final, array('name' => 'Horas reemplazo', 'total' => $arreglo3[0]['total_horas_reemplazo'],'total_general' => $arreglo3[0]['general_horas_reemplazo']));
+            array_push($arreglo_final, array('name' => 'Horas trabajadas', 'total_general' => $arreglo2[0]['general_horas_trabajadas']));
+            array_push($arreglo_final, array('name' => 'Horas atrasos', 'total_general' => $arreglo2[0]['general_min_atrasos']));
+            array_push($arreglo_final, array('name' => 'Horas salidas ah', 'total_general' => $arreglo2[0]['general_min_salidas_ah']));
+            array_push($arreglo_final, array('name' => 'Horas faltas', 'total_general' => $arreglo2[0]['general_horas_faltas']));
+            array_push($arreglo_final, array('name' => 'Horas reemplazo', 'total_general' => $arreglo2[0]['general_horas_reemplazo']));
+            
+
+            echo json_encode(array('data' => $arreglo_final));
+          }
+          else if ($request->post('graficar')=='uni_por_fecha') {
+            //die('10');
+            $primaryConnection = \Yii::$app->db;
+            $command2 = $primaryConnection->createCommand($sql6);
+            $general = $command2->queryAll();
+            
+            $arreglo2 = array();
+            foreach ($general as $key => $value) {
+              $value['general_min_atrasos'] = $this->formatearHora($value['general_min_atrasos']);
+              $value['general_min_salidas_ah'] = $this->formatearHora($value['general_min_salidas_ah']);
+              $value['general_horas_trabajadas'] = $this->formatearHora($value['general_horas_trabajadas']);
+              $value['general_horas_faltas'] = $this->formatearHora($value['general_horas_faltas']);
+              $value['general_horas_reemplazo'] = $this->formatearHora($value['general_horas_reemplazo']);
+              $arreglo2[] = $value;
+            }
+
+            $arreglo_final = array();
+            array_push($arreglo_final, array('name' => 'Horas trabajadas', 'total_general' => $arreglo2[0]['general_horas_trabajadas']));
+            array_push($arreglo_final, array('name' => 'Horas atrasos', 'total_general' => $arreglo2[0]['general_min_atrasos']));
+            array_push($arreglo_final, array('name' => 'Horas salidas ah', 'total_general' => $arreglo2[0]['general_min_salidas_ah']));
+            array_push($arreglo_final, array('name' => 'Horas faltas', 'total_general' => $arreglo2[0]['general_horas_faltas']));
+            array_push($arreglo_final, array('name' => 'Horas reemplazo', 'total_general' => $arreglo2[0]['general_horas_reemplazo']));
             
 
             echo json_encode(array('data' => $arreglo_final));
@@ -377,14 +398,6 @@ class EstadisticasController extends \yii\web\Controller
         }
     }
 
-    public function restaHoras($horaIni, $horaFin){
-
-        return (date("H:i:s", strtotime("00:00:00") + strtotime($horaIni) - strtotime($horaFin) ));
-    }
-    public function sumaHoras($horaIni, $horaFin){
-
-        return (date("H:i:s",strtotime($horaIni) + strtotime($horaFin) - strtotime("00:00:00")));
-    }
     public function formatearHora($hora){
       if($hora!=null){
         list($horas, $minutos, $segundos) = explode(':', $hora);

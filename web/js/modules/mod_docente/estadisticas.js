@@ -112,10 +112,30 @@ Ext.onReady(function() {
         mode: 'remote',   
         listeners: {
             'select': function(combo,record,index){
-               Ext.gest_estadisticas.groupingStore.load(/*{params: {start: 0,limit: 7}}*/);               
+               Ext.gest_estadisticas.groupingStore.load(/*{params: {start: 0,limit: 7}}*/);
+               Ext.gest_estadisticas.estbtn.setDisabled(false);               
             }
         }
-    }); 
+    });
+
+    Ext.gest_estadisticas.estbtn = new Ext.Button({
+        text: 'Total General',
+        disabled:true,
+        listeners: {'click':function(){
+                if(Ext.gest_estadisticas.comboperiodolectivo.getValue()!=''){
+                    Ext.gest_estadisticas.store1.load({params:{id_docente:'General',graficar: 'universidad',id_periodo: Ext.gest_estadisticas.comboperiodolectivo.getValue()}});
+                    Ext.gest_estadisticas.ventana2.show();    
+                }else if(Ext.getCmp('por_fecha').checked == true){
+                    Ext.gest_estadisticas.store1.load({params:{id_docente:'General',graficar: 'uni_por_fecha',fecha_rango_1:Ext.getCmp('fechainicio').getValue(),fecha_rango_2:Ext.getCmp('fechafin').getValue()}});
+                    Ext.gest_estadisticas.ventana2.show();
+                }else{
+                    Ext.MessageBox.alert('Error..', 'Campo vacio!!');
+                }
+            }
+        },
+        //handler: Ext.gest_aulas.myBtnHandler,
+        icon: '../../images/chart.png'
+    });
 
     Ext.gest_estadisticas.sm  = new Ext.grid.RowSelectionModel({});
     Ext.gest_estadisticas.grid = new Ext.grid.GridPanel({
@@ -134,7 +154,7 @@ Ext.onReady(function() {
                 width: 8,
                 css: 'text-align: center',
                 items: [{
-                    icon   : '../../images/view.png',
+                    icon   : '../../images/chart.png',
                     tooltip: 'Ver estadisticas',
                     handler: function(grid, rowIndex, colIndex) {
                         var rec = Ext.gest_estadisticas.groupingStore.getAt(rowIndex);
@@ -178,6 +198,7 @@ Ext.onReady(function() {
                             Ext.gest_estadisticas.fechainicio.setDisabled(false);
                             Ext.gest_estadisticas.fechafin.setDisabled(false);
                             Ext.gest_estadisticas.groupingStore.removeAll();
+                            Ext.gest_estadisticas.estbtn.setDisabled(false);
                         }else{
                             Ext.gest_estadisticas.fechainicio.setValue('');
                             Ext.gest_estadisticas.fechafin.setValue('');
@@ -185,6 +206,7 @@ Ext.onReady(function() {
                             Ext.gest_estadisticas.fechainicio.setDisabled(true);
                             Ext.gest_estadisticas.fechafin.setDisabled(true);
                             Ext.gest_estadisticas.groupingStore.removeAll();
+                            Ext.gest_estadisticas.estbtn.setDisabled(true);
                         };
                     }
 
@@ -245,7 +267,8 @@ Ext.onReady(function() {
             displayInfo: true,
             displayMsg: 'Resultados {0} - {1} de {2}',
             emptyMsg: 'Ning&uacute;n resultado para mostrar.'
-        })
+        }),
+        fbar: [Ext.gest_estadisticas.estbtn]
     });
 
     Ext.gest_estadisticas.store1 = new Ext.data.Store({
@@ -262,7 +285,7 @@ Ext.onReady(function() {
 
 
     Ext.gest_estadisticas.ventana = new Ext.Window({
-        title:'Gestión de las preguntas',
+        title:'Estadisticas',
         closeAction: 'hide',
         height: 450,
         width: 750,
@@ -274,7 +297,9 @@ Ext.onReady(function() {
             store: Ext.gest_estadisticas.store1,
             url:'../../resources/charts.swf',
             xField: 'name',
-            xLabel: 'Esto es una prueba',
+            /*xAxis: new Ext.chart.CategoryAxis({
+                title: 'nombre_docente'
+            }),
             /*yAxis: new Ext.chart.NumericAxis({
                 displayName: 'Prueba',
                 //labelRenderer : Ext.util.Format.numberRenderer('0,0')
@@ -340,6 +365,87 @@ Ext.onReady(function() {
                 yField: 'total',
                 style: {
                     color: 0x15428B
+                }
+            }
+            ],
+            extraStyle:{            //Step 1
+                                legend:{        //Step 2
+                                    display: 'left'//Step 3
+                                }
+                            }
+        }]
+    });
+    Ext.gest_estadisticas.ventana2 = new Ext.Window({
+        title:'Estadisticas',
+        closeAction: 'hide',
+        height: 450,
+        width: 750,
+        layout:'fit',
+        constrain: true,
+        modal:true,
+        items:[{
+            xtype: 'columnchart',
+            store: Ext.gest_estadisticas.store1,
+            url:'../../resources/charts.swf',
+            xField: 'name',
+            /*yAxis: new Ext.chart.NumericAxis({
+                displayName: 'Prueba',
+                //labelRenderer : Ext.util.Format.numberRenderer('0,0')
+                //labelRenderer: function(date) { return date.format("d.H");}
+            }),
+            /*tipRenderer : function(chart, record, index, series){
+                if(series.yField == 'visits'){
+                    return Ext.util.Format.number(record.data.visits, '0,0') + ' ' + record.data.name;
+                }else{
+                    return Ext.util.Format.number(record.data.views, '0,0') + ' ' + record.data.name;
+                }
+            },*/
+            chartStyle: {
+                padding: 10,
+                animationEnabled: true,
+                font: {
+                    name: 'Tahoma',
+                    color: 0x444444,
+                    size: 11
+                },
+                dataTip: {
+                    padding: 5,
+                    border: {
+                        color: 0x99bbe8,
+                        size:1
+                    },
+                    background: {
+                        color: 0xDAE7F6,
+                        alpha: .9
+                    },
+                    font: {
+                        name: 'Tahoma',
+                        color: 0x15428B,
+                        size: 10,
+                        bold: true
+                    }
+                },
+                xAxis: {
+                    color: 0x69aBc8,
+                    majorTicks: {color: 0x69aBc8, length: 4},
+                    minorTicks: {color: 0x69aBc8, length: 2},
+                    majorGridLines: {size: 1, color: 0xeeeeee}
+                },
+                yAxis: {
+                    color: 0x69aBc8,
+                    majorTicks: {color: 0x69aBc8, length: 4},
+                    minorTicks: {color: 0x69aBc8, length: 2},
+                    majorGridLines: {size: 1, color: 0xdfe8f6}
+                }
+            },
+            series: [{
+                type: 'column',
+                displayName: 'Comportamiento Universidad',
+                yField: ['total_general'],
+                style: {
+                    image:'../../bar.gif',
+                    mode: 'stretch',
+                    color:0x99BBE8
                 }
             }
             ],
