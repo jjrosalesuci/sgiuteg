@@ -19,7 +19,7 @@ $config = [
         ],
         'urlManager' => [
             'enablePrettyUrl' => true,
-            'baseUrl' => 'http://localhost/pago_artistas/web/',
+            'baseUrl' => 'https://localhost/sgiuteg/web/',
             'rules' => [
             ],
         ],
@@ -61,16 +61,16 @@ $config = [
         ],
         'db' => [
                  'class' => 'yii\db\Connection',
-                 'dsn' => 'pgsql:host=127.0.0.1;dbname=arquitectura',
-		 'username' => 'postgres',
-		 'password' => '',
-		 'charset' => 'utf8'
+                 'dsn' => 'pgsql:host=127.0.0.1;dbname=arquitectura_prod',
+	           	 'username' => 'postgres',
+		         'password' => '5267910236',
+		         'charset' => 'utf8'
                 ],
         'db_siga' =>[
                  'class' => 'yii\db\Connection',
-                 'dsn' => 'mysql:host=127.0.0.1;dbname=siga', //maybe other dbms such as psql,...
-                 'username' => 'sis_siga',
-                 'password' => ''
+                 'dsn' => 'mysql:host=127.0.0.1;dbname=siga2', //maybe other dbms such as psql,...
+                 'username' => 'root',
+                 'password' => 'root'
                 ]
     ],
     'params' => $params,

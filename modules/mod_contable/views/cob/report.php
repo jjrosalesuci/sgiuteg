@@ -1,4 +1,4 @@
-<style type="text/css">
+                <style type="text/css">
                         #the-table { border:1px solid #bbb;border-collapse:collapse;margin: 10px ;width: 97%}
                         #the-table td,#the-table th { border:1px solid #ccc;border-collapse:collapse;padding:2px; }
 
