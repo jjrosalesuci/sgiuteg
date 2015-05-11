@@ -108,7 +108,7 @@ class InformesController extends \yii\web\Controller
 			$p1->SetLegends($leyenda);
 			$graph->Add($p1);
 			//$graph->Stroke();}
-			$uta_base = "/var/www/html/sgiuteg/web/public/";
+			$uta_base = "/public/";
 			$ruta = "grafica_periodo_lectivo".$value['id_periodo_lectivo'].".png";
 			$graph ->Stroke($uta_base.$ruta);
         
