@@ -17,8 +17,6 @@ class InformesController extends \yii\web\Controller
     }
 
     public function actionReporte(){
-
-
         if(isset($_GET['id'])){
             switch ($_GET['id']) {
                 case '0':
@@ -291,11 +289,11 @@ class InformesController extends \yii\web\Controller
         echo 'En desarrollo..';
     }
 
-    public function buscarNombreModalidad($arreglo, $id_modalidad){    	
-    	foreach ($arreglo as $key => $value) {
-    		if($value['id_modalidad']==$id_modalidad){
-    			return $value['nombre_modalidad'];
-    		}
-    	}
+    public function buscarNombreModalidad($arreglo, $id_modalidad){     
+      foreach ($arreglo as $key => $value) {
+        if($value['id_modalidad']==$id_modalidad){
+          return $value['nombre_modalidad'];
+        }
+      }
     }
 }
