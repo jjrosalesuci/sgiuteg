@@ -289,7 +289,157 @@ class InformesController extends \yii\web\Controller
 	}
 
 	public function reporte3(){
-		echo 'En desarrollo..';
+		$periodos    = datPeriodoConfig::find()->asArray()->all();
+		$id_periodos = array();
+		foreach ($periodos as $key => $value) {
+			$id_periodos[] = $value['id_periodo'];
+		}
+
+		$sql_reporte1 = "
+		SELECT
+		sa_alumno.id,
+		sa_alumno.nombre,
+		sa_alumno.apellido,
+		sa_alumno.cedula,
+		sa_alumno.email_uteg,
+		sa_alumno.telefono,
+		sa_saldo_alumno.saldo,
+		sa_materia_periodo_lectivo.id_periodo_lectivo
+		FROM
+		sa_alumno
+		INNER JOIN sa_alumno_materia ON (sa_alumno.id = sa_alumno_materia.id_alumno)
+		INNER JOIN sa_materia_periodo_lectivo ON (sa_alumno_materia.id_materia_periodo_lectivo = sa_materia_periodo_lectivo.id)
+		INNER JOIN sa_saldo_alumno ON (sa_saldo_alumno.cedula = sa_alumno.cedula)
+		WHERE
+		sa_materia_periodo_lectivo.id_periodo_lectivo IN (". implode(',',$id_periodos).") and sa_alumno.estatus = 'A' and sa_saldo_alumno.saldo != '0.00'
+		GROUP BY
+		sa_alumno.id,
+		sa_alumno.nombre
+		";
+
+		$primaryConnection = \Yii::$app->db_siga;
+		$command    = $primaryConnection->createCommand($sql_reporte1);
+		$resultados = $command->queryAll();
+
+		$arreglo = array();
+		$cant_pre = 0;
+		$cant_semi = 0;
+		$suma_pre = 0;
+		$suma_semi = 0;
+		foreach ($resultados as $key => $value) {
+			if($this->findModelPeriodoV($value['id_periodo_lectivo'])=="Presencial"){
+				$value['modalidad'] = "Presencial";
+				$suma_pre+=$value['saldo'];
+				$cant_pre++;
+			}else{
+				$value['modalidad'] = "Semipresencial";
+				$cant_semi++;
+				$suma_semi+=$value['saldo'];
+			}
+			$arreglo[] = $value;
+		}
+		$label = array();
+		$data = array();
+		array_push($label, 'Presencial('.$cant_pre.' est)','Semipresencial('.$cant_semi.' est)');
+		array_push($data, $suma_pre,$suma_semi);
+
+		 #GENERAR GRAFICA
+				require_once(Yii::getAlias('@vendor'). '/jpgraph/jpgraph.php');
+	    	require_once(Yii::getAlias('@vendor'). '/jpgraph/jpgraph_bar.php');
+
+				// Setup the graph
+				$graph = new \Graph(500,250);
+				$graph->SetScale("textlin");
+
+				$theme_class=new \UniversalTheme;
+
+				$graph->SetTheme($theme_class);
+				$graph->img->SetAntiAliasing(false);
+				//$graph->title->Set('Cantidad de alumnos por categorias ('.$nombre_periodo_lectivo.')');
+				$graph->SetBox(false);
+
+				$graph->img->SetAntiAliasing();
+
+				//$graph->yaxis->HideZeroLabel();
+				//$graph->yaxis->SetLegend('Cantidad de USD');
+				$graph->yaxis->HideLine(false);
+				$graph->yaxis->HideTicks(false,false);
+
+				$graph->xgrid->Show();
+				$graph->xgrid->SetLineStyle("solid");
+				$graph->xaxis->SetTickLabels($label);
+				$graph->xgrid->SetColor('#E3E3E3');
+
+				// Create the first line
+				$p1 = new \BarPlot($data);
+				$graph->Add($p1);
+				$p1->SetColor("#6495ED");
+				$p1->SetLegend('Cantidad de USD');
+
+
+				$p1->value->SetFormat('%d');
+       			$p1->value->Show();
+			  	$p1->value->SetColor('#55bbdd');
+
+
+				$graph->legend->SetFrameWeight(1);
+				$graph->legend->SetPos(0.5,0.98,'center','bottom');
+
+
+			  $uta_base = "public/";
+		  	$ruta = "adeudados.png";
+		  	$graph ->Stroke($uta_base.$ruta);
+
+		   	echo '<img src="'.Url::base().'/public/'.$ruta.'" border="0" alt="Este es el ejemplo de un texto alternativo" >';
+
+          $html_table_output ='
+                <style type="text/css">
+                        #the-table2 { border:1px solid #bbb;border-collapse:collapse;margin: 10px ;width: 97%}
+                        #the-table2 td,#the-table2 th { border:1px solid #ccc;border-collapse:collapse;padding:2px; }
+                </style>
+
+                <table cellspacing="1"  id="the-table2">
+                            <thead>
+                                <tr style="background:#CCF2FF;">
+                                    <td colspan="6"><b>Valores Adeudados Detalle</b></td>
+                                </tr>
+                                <tr style="background:#CCF2FF;">
+                                    <th>Modalidad</th>
+                                    <th>Alumno</th>
+                                    <th>Cedula</th>
+                                    <th>Email</th>
+                                    <th>Telefono</th>
+                                    <th>Valor Pendiente</th>
+                                </tr>
+                            </thead>
+                            <tbody>';   
+
+                              $i=0;
+                             foreach ($arreglo as $key_e => $value_e) {
+                                           $html_table_output = $html_table_output . '<tr>';
+                                           $html_table_output = $html_table_output . '<td>'. $arreglo[$i]['modalidad'].'</td>';                                          
+                                           $html_table_output = $html_table_output . '<td>'. $arreglo[$i]['nombre'].' '.$resultados[$i]['apellido'].'</td>';   
+                                           $html_table_output = $html_table_output . '<td>'. $arreglo[$i]['cedula'].'</td>';   
+                                           $html_table_output = $html_table_output . '<td>'. $arreglo[$i]['email_uteg'].'</td>';
+                                           $html_table_output = $html_table_output . '<td>'. $arreglo[$i]['telefono'].'</td>';
+                                           $html_table_output = $html_table_output . '<td>'. $arreglo[$i]['saldo'].'</td>';
+                                           $html_table_output = $html_table_output . '</tr>';
+                                 $i++;
+                              }          
+
+                              $html_table_output = $html_table_output .  '
+                            </tbody>
+                    </table>
+           ';
+            echo $html_table_output;
+
+          
+            if(isset($_GET['print'])){
+              if($_GET['print']==true){
+                echo '<script type="text/javascript">  window.print() </script>';
+             }
+            }
+
 	}
 
 	public function buscarNombreModalidad($arreglo, $id_modalidad){
@@ -299,4 +449,12 @@ class InformesController extends \yii\web\Controller
 			}
 		}
 	}
+	public function findModelPeriodoV($id_periodo)
+    {
+        if (($model = datPeriodoConfig::find()->where(['id_periodo' => $id_periodo])->one()) !== null) {
+                return $model->tipo;
+            } else {
+                return false;
+            }
+    }
 }
