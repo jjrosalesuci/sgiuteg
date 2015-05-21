@@ -33,7 +33,7 @@ Ext.onReady(function () {
                     Ext.getCmp('mostrar_resultado_nota_final').setValue(nota_promedio);
                 }                 
             },
-            reader: new Ext.data.JsonReader({
+            reader: new Ext.data.JsonReader({                
                 root: "data",
                 totalProperty: "count",
                 id: "id"
@@ -53,6 +53,7 @@ Ext.onReady(function () {
                 autoExpandColumn: 'expandir',
                 loadMask: 'Cargando...',
                 width: 450,
+                id:'gridevaluaciones',
                 store: Ext.m_encuestas_r.stEvaSemeDocenteAsignatura,
                 clicksToEdit: 1,
                 sm: Ext.m_encuestas_r.sm,
@@ -86,7 +87,7 @@ Ext.onReady(function () {
         Ext.m_encuestas_r.stnotas_preguntas = new Ext.data.Store({
             url: '../resultados/cantidadesrespuestas',
             autoLoad: false,
-            listeners: {'beforeload': function (store, objeto) {
+            listeners: {'beforeload': function (store, objeto) {                 
                  store.baseParams.id_trabajador         = id_trabajador;
                  store.baseParams.id_evaluacion         = Ext.m_encuestas_r.sm.getSelected().get("id_evaluacion");
                  store.baseParams.id_asignatura         = id_asignatura;
@@ -115,6 +116,7 @@ Ext.onReady(function () {
                 autoExpandColumn: 'expandir',
                 loadMask: 'Cargando...',
                 width: 450,
+                id:'gridpreguntas',
                 store: Ext.m_encuestas_r.stnotas_preguntas,
                 clicksToEdit: 1,
                 sm: Ext.m_encuestas_r.sm_notas,
@@ -245,6 +247,7 @@ Ext.onReady(function () {
                         columnWidth:.2,
                         layout: 'form',                       
                         items: [{
+                            id:'semestre',
                             margins: '5 5 0 5',
                             xtype:'textfield',
                             fieldLabel: '<b>Semestre</b>',
@@ -256,6 +259,7 @@ Ext.onReady(function () {
                         columnWidth:.3,
                         layout: 'form',                        
                         items: [{
+                            id:'nombre',
                             xtype:'textfield',
                             margins: '5 5 0 5',
                             fieldLabel: '<b>Nombre</b>',
@@ -268,6 +272,7 @@ Ext.onReady(function () {
                         columnWidth:.2,
                         layout: 'form',                        
                         items: [{
+                            id:'asignatura',
                             xtype:'textfield',
                             margins: '5 5 0 5',
                             fieldLabel: '<b>Asignatura</b>',
@@ -280,7 +285,7 @@ Ext.onReady(function () {
                     {
                         columnWidth:.2,
                         layout: 'form',                        
-                        items: [{
+                        items: [{                            
                             xtype:'textfield',
                             margins: '5 5 0 5',
                             id:'mostrar_resultado_nota_final',
@@ -327,8 +332,16 @@ Ext.onReady(function () {
                              icon: '../../../images/save.png',
                              text:'Descargar resumen',
                              handler:function(){
+                                var semestre = Ext.getCmp('semestre').getValue();
+                                var nombre   = Ext.getCmp('nombre').getValue();
+                                var asignatura = Ext.getCmp('asignatura').getValue();
+                                var notafinal = Ext.getCmp('mostrar_resultado_nota_final').getValue();
+                                var id_evaluacion = Ext.m_encuestas_r.sm.getSelected().get("id_evaluacion");
                                 var oIFrm = document.getElementById('myIFrm');
-                                oIFrm.src = "../resultados/exportarpdfdocente";
+                                console.log(id_evaluacion);
+                                oIFrm.src = "../resultados/exportarpdfdocente?semestre="
+                                        +semestre+"&nombre="+nombre+"&asignatura="+asignatura+
+                                        "&nota="+notafinal+"&idperiodo="+id_periodo+"&idtrabajador="+id_trabajador+"&idasignatura="+id_asignatura+"&idevaluacion="+id_evaluacion;
                              }
                          }),
                          new Ext.Button({
