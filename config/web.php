@@ -68,7 +68,7 @@ $config = [
                 ],
         'db_siga' =>[
                  'class' => 'yii\db\Connection',
-                 'dsn' => 'mysql:host=127.0.0.1;dbname=siga2', //maybe other dbms such as psql,...
+                 'dsn' => 'mysql:host=127.0.0.1;dbname=siga3', //maybe other dbms such as psql,...
                  'username' => 'root',
                  'password' => 'root'
                 ]
