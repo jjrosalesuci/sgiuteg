@@ -56,6 +56,21 @@ class HorariosController extends \yii\web\Controller
         echo json_encode(array('data' => $arreglo));
 
     }
+    public function actionTipodocente(){
+
+        $arreglo[] = array(
+            'tipo_docente' =>'Tiempo completo',
+        ); 
+        $arreglo[] = array(
+            'tipo_docente' =>'Medio tiempo',
+        ); 
+        $arreglo[] = array(
+            'tipo_docente' =>'Tiempo parcial',
+        );
+        
+        echo json_encode(array('data' => $arreglo));
+
+    }
     public function actionModalidad(){
 
         $arreglo[] = array(
@@ -184,6 +199,7 @@ class HorariosController extends \yii\web\Controller
 	        $model->dia_semana          = $request->post('dia');
 	        $model->id_trimestre        = $request->post('periodo');
             $model->modalidad           = $request->post('modalidad');
+            $model->tipo_docente        = $request->post('tipo_docente');
             $model->id_acl_user         = $acl_user;
 
 	        if($request->post('periodo')!=''){
@@ -216,6 +232,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->dia_semana          = 'LUNES';
 		        $model->id_trimestre        = $request->post('periodo');
                 $model->modalidad           = $request->post('modalidad');
+                $model->tipo_docente        = $request->post('tipo_docente');
                 $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
@@ -236,6 +253,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->dia_semana          = 'MARTES';
 		        $model->id_trimestre        = $request->post('periodo');
                 $model->modalidad           = $request->post('modalidad');
+                $model->tipo_docente        = $request->post('tipo_docente');
                 $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
@@ -256,6 +274,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->dia_semana          = 'MIÉRCOLES';
 		        $model->id_trimestre        = $request->post('periodo');
                 $model->modalidad           = $request->post('modalidad');
+                $model->tipo_docente        = $request->post('tipo_docente');
                 $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
@@ -276,6 +295,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->dia_semana          = 'JUEVES';
 		        $model->id_trimestre        = $request->post('periodo');
                 $model->modalidad           = $request->post('modalidad');
+                $model->tipo_docente        = $request->post('tipo_docente');
                 $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
@@ -296,6 +316,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->dia_semana          = 'VIERNES';
 		        $model->id_trimestre        = $request->post('periodo');
                 $model->modalidad           = $request->post('modalidad');
+                $model->tipo_docente        = $request->post('tipo_docente');
                 $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
@@ -316,6 +337,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->dia_semana          = 'SÁBADO';
 		        $model->id_trimestre        = $request->post('periodo');
                 $model->modalidad           = $request->post('modalidad');
+                $model->tipo_docente        = $request->post('tipo_docente');
                 $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
@@ -336,6 +358,7 @@ class HorariosController extends \yii\web\Controller
 		        $model->dia_semana          = 'DOMINGO';
 		        $model->id_trimestre        = $request->post('periodo');
                 $model->modalidad           = $request->post('modalidad');
+                $model->tipo_docente        = $request->post('tipo_docente');
                 $model->id_acl_user         = $acl_user;
 
 		        if($request->post('periodo')!=''){
@@ -403,6 +426,7 @@ class HorariosController extends \yii\web\Controller
         $model->hora_inicio         = $hora_inicio;
         $model->hora_fin            = $hora_fin;
         $model->modalidad           = $request->post('modalidad');
+        $model->tipo_docente        = $request->post('tipo_docente');
         
         if ($model->save()) {
             $result = new \stdClass();

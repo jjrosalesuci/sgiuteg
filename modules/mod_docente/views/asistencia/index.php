@@ -3,3 +3,4 @@
 	$this->registerJsFile('@web/js/modules/mod_docente/asistencia.js',['depends' => ['app\assets\AppAsset']]);
 
 ?>
+

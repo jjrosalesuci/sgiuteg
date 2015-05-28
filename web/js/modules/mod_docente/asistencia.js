@@ -1,4 +1,73 @@
-    
+function getservertime(){
+    var xmlHttp;
+    function srvTime(){
+        try {
+            //FF, Opera, Safari, Chrome
+            xmlHttp = new XMLHttpRequest();
+        }
+        catch (err1) {
+            //IE
+            try {
+                xmlHttp = new ActiveXObject('Msxml2.XMLHTTP');
+            }
+            catch (err2) {
+                try {
+                    xmlHttp = new ActiveXObject('Microsoft.XMLHTTP');
+                }
+                catch (eerr3) {
+                    //AJAX not supported, use CPU time.
+                    alert("AJAX not supported");
+                }
+            }
+        }
+        xmlHttp.open('HEAD',window.location.href.toString(),false);
+        xmlHttp.setRequestHeader("Content-Type", "text/html");
+        xmlHttp.send('');
+        return xmlHttp.getResponseHeader("Date");
+    }
+
+    var st = srvTime();
+    var date = new Date(st);
+    return moment(date).format('H:mm:ss');
+}
+
+function getserverdate(){
+    var xmlHttp;
+    function srvTime(){
+        try {
+            //FF, Opera, Safari, Chrome
+            xmlHttp = new XMLHttpRequest();
+        }
+        catch (err1) {
+            //IE
+            try {
+                xmlHttp = new ActiveXObject('Msxml2.XMLHTTP');
+            }
+            catch (err2) {
+                try {
+                    xmlHttp = new ActiveXObject('Microsoft.XMLHTTP');
+                }
+                catch (eerr3) {
+                    //AJAX not supported, use CPU time.
+                    alert("AJAX not supported");
+                }
+            }
+        }
+        xmlHttp.open('HEAD',window.location.href.toString(),false);
+        xmlHttp.setRequestHeader("Content-Type", "text/html");
+        xmlHttp.send('');
+        return xmlHttp.getResponseHeader("Date");
+    }
+
+    var st = srvTime();
+    var date = new Date(st);
+    return moment(date).format('YYYY[-]MM[-]DD');
+}
+
+window.onload=function(){
+setInterval("getservertime()", 1000)
+}
+
 Ext.onReady(function(){
 
     Ext.QuickTips.init();
@@ -6,10 +75,6 @@ Ext.onReady(function(){
     Ext.ns('Ext.asistencia');
 
     moment.locale('es');
-    //var currentDate = 'Fecha: '+moment().format('LLLL')+' Hora: '+moment().format('h:mm:ss a');
-    //var currentDate = moment().format('YYYY[-]MM[-]DD');
-    //var currentHour = moment().format('h:mm:ss');
-
 
     Ext.asistencia.stHorarios = new Ext.data.Store({
         url: 'asistencia/cargar',
@@ -163,14 +228,14 @@ Ext.onReady(function(){
                                             url: 'asistencia/iniciar',
                                             method: 'POST',
                                             params: {id_turno: rec.get('id'),
-                                                    hora_inicio: moment().format('H:mm:ss'),
-                                                    fecha: moment().format('YYYY[-]MM[-]DD'),
+                                                    hora_inicio: getservertime(),
+                                                    fecha: getserverdate(),
                                                     suplantar: Ext.getCmp('suplantar').getValue()
                                             },
                                             callback: function (options, success, response) {
                                                 responseData = Ext.decode(response.responseText);
                                                 if (responseData.success == true) {
-                                                    Ext.MessageBox.alert('Información', 'El turno se inició correctamente.');
+                                                    Ext.MessageBox.alert('Información', 'El turno se inició correctamente.\n Fecha: '+getserverdate()+' Hora:'+getservertime());
                                                 }
                                                 else if(responseData.success == 'docente'){
                                                     Ext.MessageBox.alert('Error!!!', 'Usted no puede suplantarse.');
@@ -179,7 +244,7 @@ Ext.onReady(function(){
                                                     Ext.MessageBox.alert('Error!!!', 'Debe esperar 30 minutos antes para poder iniciar.');
                                                 }
                                                 else if(responseData.success == 'concluido'){
-                                                    Ext.MessageBox.alert('Error!!!', 'Fuera del limite de hora para iniciar.');
+                                                    Ext.MessageBox.alert('Error!!!', 'Fuera del limite de hora para iniciar. ');
                                                 }
                                                 else {
                                                     Ext.MessageBox.alert('Error!!!', 'Usted ya ha iniciado el turno de clase!!');
@@ -213,14 +278,14 @@ Ext.onReady(function(){
                                             url: 'asistencia/finalizar',
                                             method: 'POST',
                                             params: {id_turno: rec.get('id'),
-                                                    hora_fin: moment().format('H:mm:ss'),
-                                                    fecha: moment().format('YYYY[-]MM[-]DD'),
+                                                    hora_fin: getservertime(),
+                                                    fecha: getserverdate(),
                                                     suplantar: Ext.getCmp('suplantar').getValue()
                                             },
                                             callback: function (options, success, response) {
                                                 responseData = Ext.decode(response.responseText);
                                                 if (responseData.success == true) {
-                                                    Ext.MessageBox.alert('Información', 'El turno fue finalizado correctamente.'); 
+                                                    Ext.MessageBox.alert('Información', 'El turno fue finalizado correctamente.\n Fecha: '+getserverdate()+' Hora:'+getservertime()); 
                                                 }
                                                 else if(responseData.success == false){
                                                     Ext.MessageBox.alert('Error!!!', 'Usted ya ha finalizado el turno de clase!!!!');
@@ -281,7 +346,60 @@ Ext.onReady(function(){
                 align: 'center',
                 xtype:'checkbox'
             },'-',
-            Ext.asistencia.combodocentes
+            Ext.asistencia.combodocentes,
+            {
+            listeners: {
+                render: {
+                    fn: function(){
+                        // Add a class to the parent TD of each text item so we can give them some custom inset box
+                        // styling. Also, since we are using a greedy spacer, we have to add a block level element
+                        // into each text TD in order to give them a fixed width (TextItems are spans).  Insert a
+                        // spacer div into each TD using createChild() so that we can give it a width in CSS.
+
+                        // Kick off the clock timer that updates the clock el every second:
+                        Ext.TaskMgr.start({
+                            run: function(){
+                                var xmlHttp;
+                                function srvTime(){
+                                    try {
+                                        //FF, Opera, Safari, Chrome
+                                        xmlHttp = new XMLHttpRequest();
+                                    }
+                                    catch (err1) {
+                                        //IE
+                                        try {
+                                            xmlHttp = new ActiveXObject('Msxml2.XMLHTTP');
+                                        }
+                                        catch (err2) {
+                                            try {
+                                                xmlHttp = new ActiveXObject('Microsoft.XMLHTTP');
+                                            }
+                                            catch (eerr3) {
+                                                //AJAX not supported, use CPU time.
+                                                alert("AJAX not supported");
+                                            }
+                                        }
+                                    }
+                                    xmlHttp.open('HEAD',window.location.href.toString(),false);
+                                    xmlHttp.setRequestHeader("Content-Type", "text/html");
+                                    xmlHttp.send('');
+                                    return xmlHttp.getResponseHeader("Date");
+                                }
+
+                                var st = srvTime();
+                                var date = new Date(st);
+                                Ext.getCmp('server').setText('Fecha del servidor: '+date);
+                            },
+                            interval: 1000
+                        });
+                    }
+                }
+            }
+            },
+            {
+                xtype:'button',
+                id:'server',
+            }
         ]
     });
 
@@ -340,3 +458,4 @@ Ext.onReady(function(){
         ]
     });
 });
+

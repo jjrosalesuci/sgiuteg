@@ -3,6 +3,8 @@ Ext.onReady(function() {
     Ext.QuickTips.init();
     Ext.ns('Ext.gest_estadisticas');
 
+
+
     Ext.gest_estadisticas.fechainicio = new Ext.form.DateField({
                 fieldLabel: 'Buscar por  fecha',
                 id: 'fechainicio',
@@ -26,9 +28,9 @@ Ext.onReady(function() {
                 disabled: 'true',
                 //name:'fecha_reporte1',
                 listeners: {'select': function(){
-                        if(Ext.getCmp('fechainicio').getValue()!='')
+                        if(Ext.getCmp('fechainicio').getRawValue()!='')
                         {
-                           Ext.gest_estadisticas.groupingStore.load({params:{fecha_rango_1:Ext.getCmp('fechainicio').getValue(),fecha_rango_2:this.getValue(),}}); 
+                           Ext.gest_estadisticas.groupingStore.load({params:{fecha_rango_1:Ext.getCmp('fechainicio').getRawValue(),fecha_rango_2:this.getRawValue(),}}); 
                         }
                         else{
                             Ext.MessageBox.alert('Error..', 'Campo vacio!!');
@@ -113,7 +115,11 @@ Ext.onReady(function() {
         listeners: {
             'select': function(combo,record,index){
                Ext.gest_estadisticas.groupingStore.load(/*{params: {start: 0,limit: 7}}*/);
-               Ext.gest_estadisticas.estbtn.setDisabled(false);               
+               Ext.gest_estadisticas.estbtn.setDisabled(false);
+               Ext.gest_estadisticas.excelbtn.setDisabled(false); 
+               Ext.gest_estadisticas.fulltimebtn.setDisabled(false);
+               Ext.gest_estadisticas.academicobtn.setDisabled(false);
+               Ext.gest_estadisticas.middletimebtn.setDisabled(false);               
             }
         }
     });
@@ -125,8 +131,8 @@ Ext.onReady(function() {
                 if(Ext.gest_estadisticas.comboperiodolectivo.getValue()!=''){
                     Ext.gest_estadisticas.store1.load({params:{id_docente:'General',graficar: 'universidad',id_periodo: Ext.gest_estadisticas.comboperiodolectivo.getValue()}});
                     Ext.gest_estadisticas.ventana2.show();    
-                }else if(Ext.getCmp('por_fecha').checked == true){
-                    Ext.gest_estadisticas.store1.load({params:{id_docente:'General',graficar: 'uni_por_fecha',fecha_rango_1:Ext.getCmp('fechainicio').getValue(),fecha_rango_2:Ext.getCmp('fechafin').getValue()}});
+                }else if(Ext.getCmp('por_fecha').checked == true && Ext.gest_estadisticas.fechainicio.getRawValue()!='' && Ext.gest_estadisticas.fechafin.getRawValue()!=''){
+                    Ext.gest_estadisticas.store1.load({params:{id_docente:'General',graficar: 'uni_por_fecha',fecha_rango_1:Ext.getCmp('fechainicio').getRawValue(),fecha_rango_2:Ext.getCmp('fechafin').getRawValue()}});
                     Ext.gest_estadisticas.ventana2.show();
                 }else{
                     Ext.MessageBox.alert('Error..', 'Campo vacio!!');
@@ -135,6 +141,69 @@ Ext.onReady(function() {
         },
         //handler: Ext.gest_aulas.myBtnHandler,
         icon: '../../images/chart.png'
+    });
+    Ext.gest_estadisticas.excelbtn = new Ext.Button({
+        text: 'Exportar',
+        disabled:true,
+        handler: function (btn){
+                if(Ext.gest_estadisticas.comboperiodolectivo.getValue()!=''){
+                    window.open(BASE_URL_FRAME+'/index.php/mod_docente/estadisticas/createreport?id_periodo_lectivo='+Ext.gest_estadisticas.comboperiodolectivo.getValue()+'&fecha_rango_1='+Ext.getCmp('fechainicio').getRawValue()+'&fecha_rango_2='+Ext.getCmp('fechafin').getRawValue()+'&nombre_periodo='+Ext.gest_estadisticas.comboperiodolectivo.getRawValue());
+                }else if(Ext.getCmp('por_fecha').checked == true && Ext.gest_estadisticas.fechainicio.getRawValue()!='' && Ext.gest_estadisticas.fechafin.getRawValue()!=''){
+                    window.open(BASE_URL_FRAME+'/index.php/mod_docente/estadisticas/createreport?id_periodo_lectivo='+Ext.gest_estadisticas.comboperiodolectivo.getValue()+'&fecha_rango_1='+Ext.getCmp('fechainicio').getRawValue()+'&fecha_rango_2='+Ext.getCmp('fechafin').getRawValue()+'&nombre_periodo=');
+                }else{
+                    Ext.MessageBox.alert('Error..', 'Campo vacio!!');
+                }
+        },
+        //handler: Ext.gest_aulas.myBtnHandler,
+        icon: '../../images/Download_16x16.png'
+    });
+    
+    Ext.gest_estadisticas.fulltimebtn = new Ext.Button({
+        text: 'Tiempo Completo',
+        disabled:true,
+        handler: function (btn){
+                if(Ext.gest_estadisticas.comboperiodolectivo.getValue()!=''){
+                    window.open(BASE_URL_FRAME+'/index.php/mod_docente/estadisticas/fulltime?id_periodo_lectivo='+Ext.gest_estadisticas.comboperiodolectivo.getValue()+'&fecha_rango_1='+Ext.getCmp('fechainicio').getRawValue()+'&fecha_rango_2='+Ext.getCmp('fechafin').getRawValue()+'&nombre_periodo='+Ext.gest_estadisticas.comboperiodolectivo.getRawValue());
+                }else if(Ext.getCmp('por_fecha').checked == true && Ext.gest_estadisticas.fechainicio.getRawValue()!='' && Ext.gest_estadisticas.fechafin.getRawValue()!=''){
+                    window.open(BASE_URL_FRAME+'/index.php/mod_docente/estadisticas/fulltime?id_periodo_lectivo='+Ext.gest_estadisticas.comboperiodolectivo.getValue()+'&fecha_rango_1='+Ext.getCmp('fechainicio').getRawValue()+'&fecha_rango_2='+Ext.getCmp('fechafin').getRawValue()+'&nombre_periodo=');
+                }else{
+                    Ext.MessageBox.alert('Error..', 'Campo vacio!!');
+                }
+        },
+        //handler: Ext.gest_aulas.myBtnHandler,
+        icon: '../../images/Download_16x16.png'
+    });
+
+    Ext.gest_estadisticas.middletimebtn = new Ext.Button({
+        text: 'Medio Tiempo',
+        disabled:true,
+        handler: function (btn){
+                if(Ext.gest_estadisticas.comboperiodolectivo.getValue()!=''){
+                    window.open(BASE_URL_FRAME+'/index.php/mod_docente/estadisticas/middletime?id_periodo_lectivo='+Ext.gest_estadisticas.comboperiodolectivo.getValue()+'&fecha_rango_1='+Ext.getCmp('fechainicio').getRawValue()+'&fecha_rango_2='+Ext.getCmp('fechafin').getRawValue()+'&nombre_periodo='+Ext.gest_estadisticas.comboperiodolectivo.getRawValue());
+                }else if(Ext.getCmp('por_fecha').checked == true && Ext.gest_estadisticas.fechainicio.getRawValue()!='' && Ext.gest_estadisticas.fechafin.getRawValue()!=''){
+                    window.open(BASE_URL_FRAME+'/index.php/mod_docente/estadisticas/middletime?id_periodo_lectivo='+Ext.gest_estadisticas.comboperiodolectivo.getValue()+'&fecha_rango_1='+Ext.getCmp('fechainicio').getRawValue()+'&fecha_rango_2='+Ext.getCmp('fechafin').getRawValue()+'&nombre_periodo=');
+                }else{
+                    Ext.MessageBox.alert('Error..', 'Campo vacio!!');
+                }
+        },
+        //handler: Ext.gest_aulas.myBtnHandler,
+        icon: '../../images/Download_16x16.png'
+    });
+
+    Ext.gest_estadisticas.academicobtn = new Ext.Button({
+        text: 'Académico',
+        disabled:true,
+        handler: function (btn){
+                if(Ext.gest_estadisticas.comboperiodolectivo.getValue()!=''){
+                    window.open(BASE_URL_FRAME+'/index.php/mod_docente/estadisticas/academico?id_periodo_lectivo='+Ext.gest_estadisticas.comboperiodolectivo.getValue()+'&fecha_rango_1='+Ext.getCmp('fechainicio').getRawValue()+'&fecha_rango_2='+Ext.getCmp('fechafin').getRawValue()+'&nombre_periodo='+Ext.gest_estadisticas.comboperiodolectivo.getRawValue());
+                }else if(Ext.getCmp('por_fecha').checked == true && Ext.gest_estadisticas.fechainicio.getRawValue()!='' && Ext.gest_estadisticas.fechafin.getRawValue()!=''){
+                    window.open(BASE_URL_FRAME+'/index.php/mod_docente/estadisticas/academico?id_periodo_lectivo='+Ext.gest_estadisticas.comboperiodolectivo.getValue()+'&fecha_rango_1='+Ext.getCmp('fechainicio').getRawValue()+'&fecha_rango_2='+Ext.getCmp('fechafin').getRawValue()+'&nombre_periodo=');
+                }else{
+                    Ext.MessageBox.alert('Error..', 'Campo vacio!!');
+                }
+        },
+        //handler: Ext.gest_aulas.myBtnHandler,
+        icon: '../../images/Download_16x16.png'
     });
 
     Ext.gest_estadisticas.sm  = new Ext.grid.RowSelectionModel({});
@@ -146,7 +215,7 @@ Ext.onReady(function() {
             {id:'nombre_docente',hidden:true,header: "Docente", width: 40, sortable: true, dataIndex: 'nombre_docente'},
             {header: "T/H TRABAJADAS", width: 20, sortable: true,dataIndex: 'total_horas_trabajadas'},
             {header: "T/H-M ATRASOS", width: 20, sortable: true, dataIndex: 'total_min_atrasos'},
-            {header: "T/H-M SALIDAS ANTES DE HORA", width: 20, sortable: true, dataIndex: 'total_min_salidas_ah'},
+            {header: "T/H-M SALIDAS ANTES DE HORA", width: 25, sortable: true, dataIndex: 'total_min_salidas_ah'},
             {header: "T/H FALTAS", width: 20, sortable: true, dataIndex: 'total_horas_faltas'},
             {header: "T/H REEMPLAZO", width: 20,sortable: true, dataIndex: 'total_horas_reemplazo'},
             {
@@ -162,7 +231,7 @@ Ext.onReady(function() {
                             Ext.gest_estadisticas.store1.load({params:{id_docente: rec.data.id_docente, graficar: 'yes',id_periodo: Ext.gest_estadisticas.comboperiodolectivo.getValue()}});
                             Ext.gest_estadisticas.ventana.show();    
                         }else if(Ext.getCmp('por_fecha').checked == true){
-                            Ext.gest_estadisticas.store1.load({params:{id_docente: rec.data.id_docente, graficar: 'por_fecha',fecha_rango_1:Ext.getCmp('fechainicio').getValue(),fecha_rango_2:Ext.getCmp('fechafin').getValue()}});
+                            Ext.gest_estadisticas.store1.load({params:{id_docente: rec.data.id_docente, graficar: 'por_fecha',fecha_rango_1:Ext.getCmp('fechainicio').getRawValue(),fecha_rango_2:Ext.getCmp('fechafin').getRawValue()}});
                             Ext.gest_estadisticas.ventana.show();
                         }
                     }
@@ -199,6 +268,10 @@ Ext.onReady(function() {
                             Ext.gest_estadisticas.fechafin.setDisabled(false);
                             Ext.gest_estadisticas.groupingStore.removeAll();
                             Ext.gest_estadisticas.estbtn.setDisabled(false);
+                            Ext.gest_estadisticas.excelbtn.setDisabled(false);
+                            Ext.gest_estadisticas.fulltimebtn.setDisabled(false);
+                            Ext.gest_estadisticas.academicobtn.setDisabled(false);
+                            Ext.gest_estadisticas.middletimebtn.setDisabled(false);
                         }else{
                             Ext.gest_estadisticas.fechainicio.setValue('');
                             Ext.gest_estadisticas.fechafin.setValue('');
@@ -207,6 +280,10 @@ Ext.onReady(function() {
                             Ext.gest_estadisticas.fechafin.setDisabled(true);
                             Ext.gest_estadisticas.groupingStore.removeAll();
                             Ext.gest_estadisticas.estbtn.setDisabled(true);
+                            Ext.gest_estadisticas.excelbtn.setDisabled(true);
+                            Ext.gest_estadisticas.fulltimebtn.setDisabled(true);
+                            Ext.gest_estadisticas.academicobtn.setDisabled(true);
+                            Ext.gest_estadisticas.middletimebtn.setDisabled(true);
                         };
                     }
 
@@ -236,7 +313,7 @@ Ext.onReady(function() {
                                                  else if(Ext.gest_estadisticas.comboperiodolectivo.getValue()==''&&Ext.getCmp('por_fecha').checked == true&&(Ext.gest_estadisticas.fechainicio.getValue()==''||Ext.gest_estadisticas.fechafin.getValue()=='')){
                                                     alert('Rellene los campos vacios!!');
                                                  }else{
-                                                    Ext.gest_estadisticas.groupingStore.load({params:{fecha_rango_1:Ext.getCmp('fechainicio').getValue(),fecha_rango_2:Ext.getCmp('fechafin').getValue()}});
+                                                    Ext.gest_estadisticas.groupingStore.load({params:{fecha_rango_1:Ext.getCmp('fechainicio').getRawValue(),fecha_rango_2:Ext.getCmp('fechafin').getRawValue()}});
                                                  }
                                             }
                                  }
@@ -254,7 +331,7 @@ Ext.onReady(function() {
                         else if(Ext.gest_estadisticas.comboperiodolectivo.getValue()==''&&Ext.getCmp('por_fecha').checked == true&&(Ext.gest_estadisticas.fechainicio.getValue()==''||Ext.gest_estadisticas.fechafin.getValue()=='')){
                             alert('Rellene los campos vacios!!');
                         }else{
-                            Ext.gest_estadisticas.groupingStore.load({params:{fecha_rango_1:Ext.getCmp('fechainicio').getValue(),fecha_rango_2:Ext.getCmp('fechafin').getValue()}});
+                            Ext.gest_estadisticas.groupingStore.load({params:{fecha_rango_1:Ext.getCmp('fechainicio').getRawValue(),fecha_rango_2:Ext.getCmp('fechafin').getRawValue()}});
                         }
                       }
                 }
@@ -268,7 +345,7 @@ Ext.onReady(function() {
             displayMsg: 'Resultados {0} - {1} de {2}',
             emptyMsg: 'Ning&uacute;n resultado para mostrar.'
         }),
-        fbar: [Ext.gest_estadisticas.estbtn]
+        fbar: [Ext.gest_estadisticas.academicobtn,Ext.gest_estadisticas.fulltimebtn,Ext.gest_estadisticas.middletimebtn,Ext.gest_estadisticas.excelbtn,Ext.gest_estadisticas.estbtn]
     });
 
     Ext.gest_estadisticas.store1 = new Ext.data.Store({

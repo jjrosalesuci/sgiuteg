@@ -31,6 +31,7 @@ Ext.onReady(function () {
             {name: 'nombre_aula'},
             {name: 'edificio'},
             {name: 'modalidad'},
+            {name: 'tipo_docente'},
         ])
     });
 
@@ -160,7 +161,7 @@ Ext.onReady(function () {
             minChars:1,
             pageSize : 20,
             totalProperty : 'count',
-            anchor: '85%',       
+            anchor: '90%',       
             align: 'rigth',
             fieldLabel: 'Aula o Laboratorio',
             allowBlank: false,
@@ -236,6 +237,36 @@ Ext.onReady(function () {
         emptyText:'Seleccione',
     });
 
+    Ext.gest_horarios.sttipodocente = new Ext.data.Store({
+        url: 'horarios/tipodocente',
+        autoLoad: true,
+        reader: new Ext.data.JsonReader({
+            root: "data",
+            id: "id"
+        }, [
+            {name: 'tipo_docente'}
+        ])
+    });
+
+    Ext.gest_horarios.combo_tipodocente = new Ext.form.ComboBox({
+        hiddenName: 'tipo_docente',
+        valueField: 'tipo_docente',
+        displayField: 'tipo_docente',
+        store: Ext.gest_horarios.sttipodocente,
+        autoCreate: true,
+        typeAhead: true,
+        triggerAction: 'all',
+        readOnly: false,
+        forceSelection:true,
+        mode: 'local',
+        //width: 100,
+        anchor: '85%',  
+        allowBlank: false,    
+        align: 'rigth',
+        fieldLabel: 'Tipo Docente',
+        emptyText:'Seleccione',
+    });
+
     Ext.gest_horarios.trimestre_store = new Ext.data.JsonStore({
         root: 'data',
         totalProperty : 'count',
@@ -297,40 +328,20 @@ Ext.onReady(function () {
             layout:'column',
             items:[
             {
-                columnWidth:.7,
+                columnWidth:.50,
                 layout: 'form',
                 items: [
                     Ext.gest_horarios.combomaterias,
                     Ext.gest_horarios.combodocentes,
-                    {
-                        columnWidth:.7,
-                        layout: 'column',
-                        /*defaults: {
-                            // applied to each contained panel
-                            bodyStyle:'padding-right:3px'
-                        },
-                        layoutConfig: {
-                            // The total column count must be specified here
-                            columns: 2
-                        },*/
-                        items: [
-                            {
-                                columnWidth:.48,
-                                layout: 'form',
-                                items: [
-                                    Ext.gest_horarios.combo_modalidad
-                                ]
-                            },
-                            {
-                                columnWidth:.48,
-                                layout: 'form',
-                                items: [
-                                    Ext.gest_horarios.comboaulas
-                                ]
-                            }
-                            
-                            ]
-                    }  
+                    Ext.gest_horarios.comboaulas
+                ]
+            },
+            {
+                columnWidth:.28,
+                layout: 'form',
+                items: [
+                    Ext.gest_horarios.combo_modalidad,
+                    Ext.gest_horarios.combo_tipodocente
                 ]
             },
             {
@@ -340,7 +351,7 @@ Ext.onReady(function () {
                     hidden: true
             },
             {
-                columnWidth:.3,
+                columnWidth:.22,
                 layout: 'form',
                 left: 6,
                 items: [{
@@ -392,7 +403,7 @@ Ext.onReady(function () {
                             Ext.getCmp('aceptar_btn').disable();
                         }else if(!checked){
                             Ext.getCmp('ventanadd').setHeight(232);
-                            Ext.getCmp('ventanadd').setWidth(450);
+                            Ext.getCmp('ventanadd').setWidth(600);
                             Ext.getCmp('ventanadd').setAutoScroll(false);
                             Ext.getCmp('horariosfp').setHeight(232);
                             Ext.getCmp('ventanadd').center();
@@ -1175,7 +1186,7 @@ Ext.onReady(function () {
                     modal:true,
                     title: title,
                     height: 232,
-                    width: 450,
+                    width: 600,
                     constrain: true,
                     items: [Ext.gest_horarios.fp],
                     buttons: [
@@ -1252,7 +1263,7 @@ Ext.onReady(function () {
                     modal:true,
                     title: title,
                     height: 232,
-                    width: 450,
+                    width: 600,
                     constrain: true,
                     items: [Ext.gest_horarios.fp],
                     buttons: [
@@ -1397,10 +1408,11 @@ Ext.onReady(function () {
             {hidden: true, hideable: false, dataIndex: 'id'},
             {header: 'Materia', width: 250, dataIndex: 'nombre_materia'},
             {header: 'Docente', width: 200, dataIndex: 'nombre_docente'},
-            {header: 'Hora Inicio', width: 100, dataIndex: 'hora_inicio'},
-            {header: 'Hora Fin', width: 100, dataIndex: 'hora_fin'},
+            {header: 'Hora Inicio', width: 80, dataIndex: 'hora_inicio'},
+            {header: 'Hora Fin', width: 80, dataIndex: 'hora_fin'},
             {header: 'Aula', width: 80, dataIndex: 'nombre_aula'},
-            {header: 'Edificio', width: 80, dataIndex: 'edificio'},
+            {header: 'Edificio', width: 60, dataIndex: 'edificio'},
+            {header: 'Tipo Docente', width: 90, dataIndex: 'tipo_docente'},
         ],
         tbar: [
             'Período: ',

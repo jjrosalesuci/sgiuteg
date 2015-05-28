@@ -22,6 +22,8 @@ class UsuarioController extends \yii\web\Controller
     {
         $request = Yii::$app->request;
         $user = new User();
+
+        $username = $request->post('username');
         $user->username    = $request->post('username');
         $user->email       = $request->post('email');
         $user->nombres     = $request->post('nombres');
@@ -29,6 +31,18 @@ class UsuarioController extends \yii\web\Controller
         $user->role        = $request->post('role');
         $user->cedula      = $request->post('cedula');
         $user->sexo        = $request->post('sexo');
+
+        $user_siga = AclUser::find()
+                    ->where(['name' => $request->post('username')])
+                    ->one();
+        $id_user = null;
+        if($user_siga!=null){
+            $id_user = $user_siga->id;
+        }   
+        if($id_user!=null){
+            $model->id_user_acl = $id_user;    
+        }
+
         $user->setPassword($request->post('password'));
         $user->generateAuthKey();
         if ($user->save()) {
@@ -96,6 +110,14 @@ class UsuarioController extends \yii\web\Controller
         $cedula            = $request->post('cedula');
         $sexo              = $request->post('sexo');
 
+        $user_siga = AclUser::find()
+                    ->where(['name' => $username])
+                    ->one();
+        $id_user = null;
+        if($user_siga!=null){
+            $id_user = $user_siga->id;
+        }   
+
         $model = $this->findModel($id);
         $model->username  = $username;
         $model->email     = $email;
@@ -105,7 +127,9 @@ class UsuarioController extends \yii\web\Controller
         $model->cedula    = $cedula;
         $model->sexo      = $sexo;
 
-
+        if($id_user!=null){
+            $model->id_user_acl = $id_user;    
+        }
         if ($model->save()) {
             $result = new \stdClass();
             $result->success = true;
